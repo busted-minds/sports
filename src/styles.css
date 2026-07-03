@@ -6242,6 +6242,10 @@ body {
     min-height: 178px;
   }
 
+  .match-list .match-card.has-poster::before {
+    background-position: center top;
+  }
+
   .match-card.has-poster .match-card-body {
     padding: 18px;
   }
