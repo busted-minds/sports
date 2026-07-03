@@ -195,11 +195,10 @@ export default function App() {
   const searchActive = Boolean(normalizedSearch);
   const homePageActive = pageMode === "home";
   const livePageActive = pageMode === "slate" && sportFilter === "all" && statusFilter === "live";
-  const nextPageActive = pageMode === "slate" && sportFilter === "all" && statusFilter === "upcoming";
   const scoresPageActive = pageMode === "scores";
   const footballPageActive = pageMode === "slate" && statusFilter === "all" && sportFilter === "football";
   const cricketPageActive = pageMode === "slate" && statusFilter === "all" && sportFilter === "cricket";
-  const mobileMoreActive = livePageActive || nextPageActive || scoresPageActive;
+  const mobileMoreActive = livePageActive || scoresPageActive;
   const queueTitle = pageQueueTitle(sportFilter, statusFilter, sportSummaries);
   const pageScope = pageScopeLabel(sportFilter, statusFilter, sportSummaries);
 
@@ -425,13 +424,6 @@ export default function App() {
               count={scoreMatches.length}
               active={scoresPageActive}
               onClick={openScores}
-            />
-            <HeaderNavButton
-              icon={NextNavIcon}
-              label="Next"
-              count={slateStats.upcoming}
-              active={nextPageActive}
-              onClick={() => openStatusPage("upcoming")}
             />
           </div>
 
@@ -850,16 +842,6 @@ export default function App() {
               <LiveNavIcon size={18} aria-hidden="true" />
               <span>Live</span>
               <small>{slateStats.live}</small>
-            </button>
-            <button
-              type="button"
-              className={nextPageActive ? "mobile-more-action is-active" : "mobile-more-action"}
-              onClick={() => openStatusPage("upcoming")}
-              aria-current={nextPageActive ? "page" : undefined}
-            >
-              <NextNavIcon size={18} aria-hidden="true" />
-              <span>Next</span>
-              <small>{slateStats.upcoming}</small>
             </button>
             <button
               type="button"
@@ -1499,7 +1481,7 @@ function ScoreboardPanel({
 }) {
   const priorityOptions = useMemo(
     () => [
-      { key: "main" as const, label: "Top", count: filterScoreMatches(scores, { ...filters, priority: "main" }).length },
+      { key: "main" as const, label: "Featured", count: filterScoreMatches(scores, { ...filters, priority: "main" }).length },
       { key: "all" as const, label: "All", count: filterScoreMatches(scores, { ...filters, priority: "all" }).length },
       { key: "others" as const, label: "Other", count: filterScoreMatches(scores, { ...filters, priority: "others" }).length },
     ],
@@ -1548,9 +1530,31 @@ function ScoreboardPanel({
     [statusCountBase],
   );
   const hasActiveFilter = !scoreFiltersMatch(filters, defaultScoreFilters);
+  const activeFacetCount = [
+    filters.priority !== defaultScoreFilters.priority,
+    filters.sport !== defaultScoreFilters.sport,
+    filters.status !== defaultScoreFilters.status,
+    filters.competition !== defaultScoreFilters.competition,
+  ].filter(Boolean).length;
   const filterSummary = `${filteredScores.length.toLocaleString()} of ${scores.length.toLocaleString()} matches`;
+  const shownSummary = `${filteredScores.length.toLocaleString()} shown`;
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
+  const [openFilterMenu, setOpenFilterMenu] = useState("");
   const updateFilters = (nextFilters: Partial<ScoreFilters>) => {
     onChangeFilters((currentFilters) => ({ ...currentFilters, ...nextFilters }));
+  };
+  const selectSport = (sportKey: ScoreSportFilter) => {
+    onChangeFilters((currentFilters) => {
+      const activeCompetition = scoreCompetitionFilters.find((competition) => competition.key === currentFilters.competition);
+      const competitionConflicts =
+        sportKey !== "all" && activeCompetition?.sport && activeCompetition.sport !== sportKey;
+
+      return {
+        ...currentFilters,
+        sport: sportKey,
+        competition: competitionConflicts ? "all" : currentFilters.competition,
+      };
+    });
   };
   const selectCompetition = (competition: (typeof scoreCompetitionFilters)[number]) => {
     onChangeFilters((currentFilters) => ({
@@ -1598,7 +1602,7 @@ function ScoreboardPanel({
               type="search"
               value={filters.query}
               onChange={(event) => updateFilters({ query: event.target.value })}
-              placeholder="Search teams, leagues, competitions"
+              placeholder="Search matches"
               aria-label="Search score matches"
               autoComplete="off"
               enterKeyHint="search"
@@ -1615,7 +1619,18 @@ function ScoreboardPanel({
             ) : null}
           </label>
           <div className="score-filter-actions" aria-live="polite">
-            <span className="score-filter-count">{filterSummary}</span>
+            <span className="score-filter-count">{shownSummary}</span>
+            <button
+              type="button"
+              className={filtersExpanded ? "score-filter-toggle is-open" : "score-filter-toggle"}
+              onClick={() => setFiltersExpanded((isExpanded) => !isExpanded)}
+              aria-expanded={filtersExpanded}
+              aria-controls="score-filter-controls"
+            >
+              <ChevronRight size={14} aria-hidden="true" />
+              Filters
+              {activeFacetCount ? <small>{activeFacetCount}</small> : null}
+            </button>
             {hasActiveFilter ? (
               <button type="button" className="score-filter-clear" onClick={() => onChangeFilters(defaultScoreFilters)}>
                 <X size={13} aria-hidden="true" />
@@ -1625,83 +1640,70 @@ function ScoreboardPanel({
           </div>
         </div>
 
-        <div className="score-filter-group score-filter-leagues">
-          <div className="score-filter-label">
-            <span>Leagues</span>
-          </div>
-          <div className="score-competition-grid" role="group" aria-label="Score competition">
-            {competitionOptions.map((competition) => (
-              <button
-                key={competition.key}
-                type="button"
-                className={filters.competition === competition.key ? "score-tab is-active" : "score-tab"}
-                onClick={() => selectCompetition(competition)}
-                aria-pressed={filters.competition === competition.key}
-              >
-                <span>{competition.label}</span>
-                <small>{competition.count}</small>
-              </button>
-            ))}
-          </div>
-        </div>
+        <div
+          id="score-filter-controls"
+          className={filtersExpanded ? "score-filter-collapse is-open" : "score-filter-collapse"}
+          hidden={!filtersExpanded}
+        >
+          <div className="score-filter-row score-filter-controls">
+            <div className="score-filter-group">
+              <div className="score-filter-label">
+                <span>View</span>
+              </div>
+              <ScoreFilterMenu
+                id="score-filter-view"
+                value={filters.priority}
+                options={priorityOptions}
+                openMenu={openFilterMenu}
+                onOpenChange={setOpenFilterMenu}
+                onSelect={(value) => updateFilters({ priority: value })}
+              />
+            </div>
 
-        <div className="score-filter-row score-filter-toolbar">
-          <div className="score-filter-group">
-            <div className="score-filter-label">
-              <span>Priority</span>
+            <div className="score-filter-group">
+              <div className="score-filter-label">
+                <span>Status</span>
+              </div>
+              <ScoreFilterMenu
+                id="score-filter-status"
+                value={filters.status}
+                options={statusOptions}
+                openMenu={openFilterMenu}
+                onOpenChange={setOpenFilterMenu}
+                onSelect={(value) => updateFilters({ status: value })}
+              />
             </div>
-            <div className="score-tabs" role="group" aria-label="Score view">
-              {priorityOptions.map((option) => (
-                <button
-                  key={option.key}
-                  type="button"
-                  className={filters.priority === option.key ? "score-tab is-active" : "score-tab"}
-                  onClick={() => updateFilters({ priority: option.key })}
-                  aria-pressed={filters.priority === option.key}
-                >
-                  <span>{option.label}</span>
-                  <small>{option.count}</small>
-                </button>
-              ))}
-            </div>
-          </div>
 
-          <div className="score-filter-group">
-            <div className="score-filter-label">
-              <span>Status</span>
+            <div className="score-filter-group">
+              <div className="score-filter-label">
+                <span>Sport</span>
+              </div>
+              <ScoreFilterMenu
+                id="score-filter-sport"
+                value={filters.sport}
+                options={sportOptions}
+                openMenu={openFilterMenu}
+                onOpenChange={setOpenFilterMenu}
+                onSelect={selectSport}
+              />
             </div>
-            <div className="score-tabs" role="group" aria-label="Score status">
-              {statusOptions.map((status) => (
-                <button
-                  key={status.key}
-                  type="button"
-                  className={filters.status === status.key ? "score-tab is-active" : "score-tab"}
-                  onClick={() => updateFilters({ status: status.key })}
-                  aria-pressed={filters.status === status.key}
-                >
-                  <span>{status.label}</span>
-                  <small>{status.count}</small>
-                </button>
-              ))}
-            </div>
-          </div>
 
-          <div className="score-filter-group">
-            <div className="score-filter-label">
-              <span>Sport</span>
+            <div className="score-filter-group">
+              <div className="score-filter-label">
+                <span>Competition</span>
+              </div>
+              <ScoreFilterMenu
+                id="score-filter-competition"
+                value={filters.competition}
+                options={competitionOptions}
+                openMenu={openFilterMenu}
+                onOpenChange={setOpenFilterMenu}
+                onSelect={(value) => {
+                  const competition = scoreCompetitionFilters.find((option) => option.key === value);
+                  if (competition) selectCompetition(competition);
+                }}
+              />
             </div>
-            <select
-              className="score-filter-select"
-              value={filters.sport}
-              onChange={(event) => updateFilters({ sport: event.target.value as ScoreSportFilter })}
-              aria-label="Score sport"
-            >
-              {sportOptions.map((sport) => (
-                <option key={sport.key} value={sport.key}>
-                  {sport.label} ({sport.count})
-                </option>
-              ))}
-            </select>
           </div>
         </div>
       </div>
@@ -1727,6 +1729,70 @@ function ScoreboardPanel({
         )}
       </div>
     </section>
+  );
+}
+
+function ScoreFilterMenu<TValue extends string>({
+  id,
+  value,
+  options,
+  openMenu,
+  onOpenChange,
+  onSelect,
+}: {
+  id: string;
+  value: TValue;
+  options: Array<{ key: TValue; label: string; count: number }>;
+  openMenu: string;
+  onOpenChange: (id: string) => void;
+  onSelect: (value: TValue) => void;
+}) {
+  const selectedOption = options.find((option) => option.key === value) ?? options[0];
+  const isOpen = openMenu === id;
+
+  return (
+    <div
+      className="score-filter-menu"
+      onBlur={(event) => {
+        const nextTarget = event.relatedTarget;
+        if (!(nextTarget instanceof Node) || !event.currentTarget.contains(nextTarget)) {
+          onOpenChange("");
+        }
+      }}
+    >
+      <button
+        type="button"
+        className={isOpen ? "score-filter-menu-button is-open" : "score-filter-menu-button"}
+        onClick={() => onOpenChange(isOpen ? "" : id)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={`${id}-menu`}
+      >
+        <span>{selectedOption.label}</span>
+        <small>{selectedOption.count}</small>
+        <ChevronRight size={15} aria-hidden="true" />
+      </button>
+      {isOpen ? (
+        <div className="score-filter-menu-popover" id={`${id}-menu`} role="listbox">
+          {options.map((option) => (
+            <button
+              key={option.key}
+              type="button"
+              className={option.key === value ? "score-filter-menu-option is-selected" : "score-filter-menu-option"}
+              onClick={() => {
+                onSelect(option.key);
+                onOpenChange("");
+              }}
+              role="option"
+              aria-selected={option.key === value}
+            >
+              <span>{option.label}</span>
+              <small>{option.count}</small>
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
