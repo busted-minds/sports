@@ -191,6 +191,102 @@ const competitionPageFeeds: Array<{
     slug: "fifa-world-cup",
     path: "/football/competition/world/fifa-world-cup/kp3glrw7hwqdyjv/",
   },
+  {
+    sport: "football",
+    competition: "FIFA Club World Cup",
+    slug: "fifa-club-world-cup",
+    path: "/football/competition/world/fifa-club-world-cup/9vjxm8ghllzr6od/",
+  },
+  {
+    sport: "football",
+    competition: "UEFA European Championship",
+    slug: "uefa-european-championship",
+    path: "/football/competition/world/uefa-european-championship/v2y8m4zh3kql074/",
+  },
+  {
+    sport: "football",
+    competition: "UEFA Nations League",
+    slug: "uefa-nations-league",
+    path: "/football/competition/world/uefa-nations-league/d23xmvkh43oqg8n/",
+  },
+  {
+    sport: "football",
+    competition: "UEFA Champions League",
+    slug: "uefa-champions-league",
+    path: "/football/competition/world/uefa-champions-league/z8yomo4h7wq0j6l/",
+  },
+  {
+    sport: "football",
+    competition: "UEFA Europa League",
+    slug: "uefa-europa-league",
+    path: "/football/competition/world/uefa-europa-league/56ypq3nh0xmd7oj/",
+  },
+  {
+    sport: "football",
+    competition: "UEFA Europa Conference League",
+    slug: "uefa-europa-conference-league",
+    path: "/football/competition/world/uefa-europa-conference-league/p4jwq2gh754m0ve/",
+  },
+  {
+    sport: "football",
+    competition: "English Premier League",
+    slug: "english-premier-league",
+    path: "/football/competition/england/english-premier-league/jednm9whz0ryox8/",
+  },
+  {
+    sport: "basketball",
+    competition: "NBA Summer League",
+    slug: "nba-summer-league",
+    path: "/basketball/competition/united-states/nba-summer-league/p3glrwyt7pqdyjv/",
+  },
+  {
+    sport: "cricket",
+    competition: "ICC Men's T20 World Cup",
+    slug: "icc-mens-t20-world-cup",
+    path: "/cricket/competition/world/icc-mens-t20-world-cup/l5ergecov6lm8k0/",
+  },
+  {
+    sport: "cricket",
+    competition: "Indian Premier League",
+    slug: "indian-premier-league",
+    path: "/cricket/competition/india/indian-premier-league/yl5ergec301m8k0/",
+  },
+  {
+    sport: "tennis",
+    competition: "Wimbledon Men Singles",
+    slug: "wimbledon-men-singles",
+    path: "/tennis/competition/world/wimbledon-men-singles/kjw2r0jfx73mz84/",
+  },
+  {
+    sport: "tennis",
+    competition: "Wimbledon Women Singles",
+    slug: "wimbledon-women-singles",
+    path: "/tennis/competition/world/wimbledon-women-singles/kdj2ry1fj53r1zp/",
+  },
+  {
+    sport: "tennis",
+    competition: "Australian Open Men Singles",
+    slug: "australian-open-men-singles",
+    path: "/tennis/competition/world/australian-open-men-singles/gpxwrxjf97kmyk0/",
+  },
+  {
+    sport: "tennis",
+    competition: "Australian Open Women Singles",
+    slug: "australian-open-women-singles",
+    path: "/tennis/competition/world/australian-open-women-singles/9vjxm85fj9ym6od/",
+  },
+  {
+    sport: "tennis",
+    competition: "US Open Men Singles",
+    slug: "us-open-men-singles",
+    path: "/tennis/competition/world/us-open-men-singles/8y39mpyfjwwmojx/",
+  },
+  {
+    sport: "tennis",
+    competition: "US Open Women Singles",
+    slug: "us-open-women-singles",
+    path: "/tennis/competition/world/us-open-women-singles/z318q6jfv26ro9j/",
+  },
 ];
 
 export async function fetchSportScoreSlate(

@@ -23,7 +23,7 @@ type SportScoreState = {
   fromCache: boolean;
 };
 
-const cacheKey = "busted_minds_sportscore_v2";
+const cacheKey = "busted_minds_sportscore_v3";
 const insightCacheKey = "busted_minds_score_insights_v1";
 const refreshIntervalMs = 90_000;
 

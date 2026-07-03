@@ -1155,8 +1155,11 @@ function HomePage({
       <section className="home-hero">
         <img className="home-hero-art" src={homeThumbnailUrl} alt="" />
         <span className="home-hero-shade" />
-        <div className="home-hero-brandmarks" aria-hidden="true">
-          <img className="home-hero-brandmark is-parent" src={parentLogoUrl} alt="" />
+        <div className="home-hero-brandmarks">
+          <div className="home-hero-powered" role="img" aria-label="Powered by Busted Minds">
+            <span className="home-hero-powered-label">Powered by</span>
+            <img className="home-hero-brandmark is-parent" src={parentLogoUrl} alt="" />
+          </div>
         </div>
 
         <div className="home-hero-content">
@@ -1524,8 +1527,8 @@ function ScoreboardPanel({
     () => [
       { key: "all" as const, label: "All", count: statusCountBase.length },
       { key: "live" as const, label: "Live", count: statusCountBase.filter((score) => score.status === "live").length },
-      { key: "upcoming" as const, label: "Next", count: statusCountBase.filter((score) => score.status === "upcoming").length },
-      { key: "finished" as const, label: "Final", count: statusCountBase.filter((score) => score.status === "finished").length },
+      { key: "upcoming" as const, label: "Fixtures", count: statusCountBase.filter((score) => score.status === "upcoming").length },
+      { key: "finished" as const, label: "Results", count: statusCountBase.filter((score) => score.status === "finished").length },
     ],
     [statusCountBase],
   );
@@ -1640,6 +1643,21 @@ function ScoreboardPanel({
           </div>
         </div>
 
+        <div className="score-status-tabs" role="group" aria-label="Score status">
+          {statusOptions.map((status) => (
+            <button
+              key={status.key}
+              type="button"
+              className={filters.status === status.key ? "score-status-tab is-active" : "score-status-tab"}
+              onClick={() => updateFilters({ status: status.key })}
+              aria-pressed={filters.status === status.key}
+            >
+              <span>{status.label}</span>
+              <small>{status.count}</small>
+            </button>
+          ))}
+        </div>
+
         <div
           id="score-filter-controls"
           className={filtersExpanded ? "score-filter-collapse is-open" : "score-filter-collapse"}
@@ -1657,20 +1675,6 @@ function ScoreboardPanel({
                 openMenu={openFilterMenu}
                 onOpenChange={setOpenFilterMenu}
                 onSelect={(value) => updateFilters({ priority: value })}
-              />
-            </div>
-
-            <div className="score-filter-group">
-              <div className="score-filter-label">
-                <span>Status</span>
-              </div>
-              <ScoreFilterMenu
-                id="score-filter-status"
-                value={filters.status}
-                options={statusOptions}
-                openMenu={openFilterMenu}
-                onOpenChange={setOpenFilterMenu}
-                onSelect={(value) => updateFilters({ status: value })}
               />
             </div>
 

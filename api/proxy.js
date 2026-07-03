@@ -7,6 +7,8 @@ const hopByHopHeaders = new Set([
   "trailer",
   "transfer-encoding",
   "upgrade",
+  "content-encoding",
+  "content-length",
 ]);
 
 export default async function handler(request, response) {
