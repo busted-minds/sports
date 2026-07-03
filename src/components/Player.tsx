@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   ExternalLink,
+  Loader2,
   MonitorPlay,
   RadioTower,
   RotateCcw,
@@ -20,6 +21,9 @@ type PlayerProps = {
 export function Player({ match, source, canUseNextSource = false, onNextSource }: PlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoError, setVideoError] = useState("");
+  const [videoState, setVideoState] = useState<"loading" | "playing" | "waiting" | "error">(
+    "loading",
+  );
   const [iframeState, setIframeState] = useState<"loading" | "loaded" | "slow" | "failed">(
     "loading",
   );
@@ -28,43 +32,56 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
     setIframeState("loading");
     if (!source || source.kind !== "iframe") return;
 
-    const timeoutId = window.setTimeout(() => setIframeState("slow"), 5500);
+    const timeoutId = window.setTimeout(() => {
+      setIframeState((currentState) => (currentState === "loading" ? "slow" : currentState));
+    }, 5500);
     return () => window.clearTimeout(timeoutId);
-  }, [source]);
+  }, [source?.kind, source?.url]);
 
   useEffect(() => {
     const video = videoRef.current;
     setVideoError("");
+    setVideoState("loading");
     if (!video || !source) return;
 
     if (source.kind !== "hls" && source.kind !== "video") return;
 
     let hls: Hls | null = null;
     let disposed = false;
+    const playbackUrl = proxiedMediaUrl(source.playbackUrl);
     video.pause();
     video.removeAttribute("src");
     video.load();
 
     if (source.kind === "hls" && video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = source.playbackUrl;
+      video.src = playbackUrl;
     } else if (source.kind === "hls") {
       void import("hls.js")
         .then(({ default: HlsPlayer }) => {
           if (disposed) return;
           if (!HlsPlayer.isSupported()) {
+            setVideoState("error");
             setVideoError("HLS playback is not supported in this browser.");
             return;
           }
 
           hls = new HlsPlayer({ lowLatencyMode: true, backBufferLength: 90 });
-          hls.loadSource(source.playbackUrl);
+          hls.on(HlsPlayer.Events.ERROR, (_event, data: { fatal?: boolean }) => {
+            if (!data.fatal || disposed) return;
+            setVideoState("error");
+            setVideoError("Playback failed for this source.");
+          });
+          hls.loadSource(playbackUrl);
           hls.attachMedia(video);
         })
         .catch(() => {
-          if (!disposed) setVideoError("HLS playback is not supported in this browser.");
+          if (!disposed) {
+            setVideoState("error");
+            setVideoError("HLS playback is not supported in this browser.");
+          }
         });
     } else if (source.kind === "video") {
-      video.src = source.playbackUrl;
+      video.src = playbackUrl;
     }
 
     const play = () => {
@@ -95,6 +112,13 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
   }
 
   if (source.kind === "iframe") {
+    const iframeTitle =
+      iframeState === "failed"
+        ? "This source refused to connect"
+        : iframeState === "slow"
+          ? "This source is taking longer than usual"
+          : "Waiting for source";
+
     return (
       <div className="player-viewport">
         <iframe
@@ -111,9 +135,7 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
           <div className="player-overlay">
             <div>
               <Server size={20} aria-hidden="true" />
-              <strong>
-                {iframeState === "failed" ? "This source refused to connect" : "Waiting for source"}
-              </strong>
+              <strong>{iframeTitle}</strong>
               <span>
                 If the frame shows block.opendns.com, this server is blocked by your DNS or network.
               </span>
@@ -146,12 +168,30 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
           muted
           playsInline
           poster={match.poster || undefined}
-          onError={() => setVideoError("Playback failed for this source.")}
+          onCanPlay={() => setVideoState("playing")}
+          onLoadStart={() => setVideoState("loading")}
+          onPlaying={() => setVideoState("playing")}
+          onWaiting={() => setVideoState("waiting")}
+          onError={() => {
+            setVideoState("error");
+            setVideoError("Playback failed for this source.");
+          }}
         />
+        {!videoError && videoState !== "playing" ? (
+          <div className="player-buffering">
+            <Loader2 className="spin" size={18} aria-hidden="true" />
+            <span>{videoState === "waiting" ? "Buffering stream" : "Loading stream"}</span>
+          </div>
+        ) : null}
         {videoError ? (
           <div className="player-alert">
             <AlertTriangle size={16} aria-hidden="true" />
             <span>{videoError}</span>
+            {canUseNextSource ? (
+              <button type="button" onClick={onNextSource}>
+                Next server
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -169,4 +209,14 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
       </div>
     </div>
   );
+}
+
+function proxiedMediaUrl(value: string) {
+  try {
+    const parsed = new URL(value);
+    if (parsed.origin === window.location.origin) return value;
+    return `/api/proxy?url=${encodeURIComponent(value)}`;
+  } catch {
+    return value;
+  }
 }

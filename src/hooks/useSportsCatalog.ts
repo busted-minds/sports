@@ -1,15 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { defaultCatalogUrl, fetchCatalog, type Match } from "../lib/catalog";
 
 type CatalogState = {
   matches: Match[];
   loading: boolean;
+  refreshing: boolean;
   error: string;
   updatedAt: number | null;
   fromCache: boolean;
 };
 
-const cacheKey = "busted_minds_sports_catalog_v1";
+const cacheKey = "busted_minds_sports_catalog_v3";
 
 export function useSportsCatalog(endpoint = defaultCatalogUrl) {
   const [state, setState] = useState<CatalogState>(() => {
@@ -17,41 +18,60 @@ export function useSportsCatalog(endpoint = defaultCatalogUrl) {
     return {
       matches: cached?.matches ?? [],
       loading: !cached,
+      refreshing: false,
       error: "",
       updatedAt: cached?.updatedAt ?? null,
       fromCache: Boolean(cached),
     };
   });
+  const mountedRef = useRef(true);
+  const requestRef = useRef<AbortController | null>(null);
 
   const refresh = useCallback(
     async (silent = false) => {
+      requestRef.current?.abort();
       const controller = new AbortController();
+      requestRef.current = controller;
 
       setState((current) => ({
         ...current,
         loading: silent ? current.loading : true,
+        refreshing: true,
         error: silent ? current.error : "",
       }));
 
       try {
         const matches = await fetchCatalog(endpoint, controller.signal);
+        if (controller.signal.aborted || !mountedRef.current) return;
+
         const updatedAt = Date.now();
         writeCache({ matches, updatedAt });
-        setState({ matches, updatedAt, loading: false, error: "", fromCache: false });
+        setState({ matches, updatedAt, loading: false, refreshing: false, error: "", fromCache: false });
       } catch (error) {
+        if (controller.signal.aborted || !mountedRef.current) return;
+
         const message = error instanceof Error ? error.message : "Catalog request failed";
         setState((current) => ({
           ...current,
           loading: false,
+          refreshing: false,
           error: message,
           fromCache: current.matches.length > 0,
         }));
+      } finally {
+        if (requestRef.current === controller) requestRef.current = null;
       }
-
-      return () => controller.abort();
     },
     [endpoint],
   );
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      requestRef.current?.abort();
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
