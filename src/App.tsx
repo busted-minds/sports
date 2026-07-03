@@ -2565,6 +2565,8 @@ function MatchCard({
   const hasAwayTeam = Boolean(match.awayTeam);
   const hasPoster = Boolean(match.poster);
   const cardStyle = matchCardBackgroundStyle(match, sportIcon);
+  const scoreLine = score ? sportScoreLine(score) : "";
+  const showTrailingMeta = !score || scoreLine.trim().toLowerCase() !== "vs";
 
   return (
     <button
@@ -2603,7 +2605,7 @@ function MatchCard({
           {hasAwayTeam ? (
             <>
               <small className={score ? "match-card-vs has-score" : "match-card-vs"}>
-                {score ? sportScoreLine(score) : "VS"}
+                {score ? scoreLine : "VS"}
               </small>
               <span className="match-card-team is-away">
                 <span>
@@ -2625,7 +2627,7 @@ function MatchCard({
 
         <span className="match-card-meta">
           <small>{match.sportLabel} · {score?.competition || match.league}</small>
-          <small>{score ? sportScoreLine(score) : `${match.sources.length} feeds`}</small>
+          {showTrailingMeta ? <small>{score ? scoreLine : `${match.sources.length} feeds`}</small> : null}
         </span>
       </span>
     </button>
