@@ -10,7 +10,7 @@ type CatalogState = {
   fromCache: boolean;
 };
 
-const cacheKey = "busted_minds_sports_catalog_v3";
+const cacheKey = "busted_minds_sports_catalog_v4";
 
 export function useSportsCatalog(endpoint = defaultCatalogUrl) {
   const [state, setState] = useState<CatalogState>(() => {

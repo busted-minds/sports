@@ -96,6 +96,7 @@ type DbMatch = {
 
 const mediaParams = ["url", "src", "source", "stream", "file", "link", "u"];
 const directMediaPattern = /\.(m3u8|mpd|mp4|webm|m4v|mov)(\?|$)/i;
+const allowedStreamSports = new Set(["football", "cricket"]);
 const fallbackServers: Record<string, Array<{ name: string; url: string }>> = {
   football: [
     { name: "Telemundo", url: "https://telemundo.vercel.app/" },
@@ -201,6 +202,8 @@ export function normalizeCatalog(payload: DamiCatalog): Match[] {
       const startsAt = normalizeTimestamp(stream.starts_at);
       const teams = normalizeTeams(name, stream.teams);
       const sportKey = normalizeSportKey(category);
+      if (!isAllowedStreamSport(sportKey)) continue;
+
       const sourceInputs = normalizeSourceInputs(stream);
       const sources = sourceInputs
         .map((source, index) => normalizeSource(source, `${category}-${apiId}-${index}`, index))
@@ -348,6 +351,8 @@ function normalizeDbMatch(
 ): Match | null {
   const rawId = asText(row.id, stableHash(JSON.stringify(row)));
   const sportKey = normalizeSportKey(asText(row.sport, "other"));
+  if (!isAllowedStreamSport(sportKey)) return null;
+
   const statusValue = asText(row.status, "other").toLowerCase();
   const status: MatchStatus =
     statusValue === "live" ? "live" : statusValue === "upcoming" ? "upcoming" : "other";
@@ -528,6 +533,10 @@ function normalizeSportKey(category: string) {
     .replace(/[^a-z0-9-]+/g, "-")
     .replace(/^-+|-+$/g, "");
   return normalized || "other";
+}
+
+function isAllowedStreamSport(sportKey: string) {
+  return allowedStreamSports.has(sportKey);
 }
 
 function normalizeTimestamp(value: unknown) {

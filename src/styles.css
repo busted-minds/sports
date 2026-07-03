@@ -5020,14 +5020,24 @@ body {
 }
 
 @media (max-width: 640px) {
-  .home-feature-matchup,
-  .home-feature-matchup.is-channel {
+  .home-feature-matchup {
     grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .home-feature-matchup.is-channel {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
     justify-items: stretch;
   }
 
   .home-feature-center {
     justify-items: start;
+  }
+
+  .home-feature-matchup.is-channel .home-feature-center {
+    justify-items: end;
+    text-align: right;
   }
 
   .home-feature-team.is-away {
@@ -5198,7 +5208,7 @@ body {
   }
 
   .home-hero {
-    min-height: 318px;
+    min-height: 288px;
     grid-template-columns: 1fr;
     border-radius: 8px;
   }
@@ -5224,9 +5234,9 @@ body {
 
   .home-feature-card {
     align-self: end;
-    gap: 10px;
-    margin: 0 10px 10px;
-    padding: 12px;
+    gap: 7px;
+    margin: 0 10px 8px;
+    padding: 10px;
     background:
       linear-gradient(180deg, rgba(30, 33, 38, 0.94), rgba(20, 23, 27, 0.92)),
       rgba(18, 20, 23, 0.94);
@@ -5234,22 +5244,27 @@ body {
   }
 
   .home-feature-label {
-    font-size: 0.66rem;
+    font-size: 0.6rem;
   }
 
-  .home-feature-matchup,
-  .home-feature-matchup.is-channel {
+  .home-feature-matchup {
     grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .home-feature-matchup.is-channel {
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
   }
 
   .home-feature-team {
-    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 8px;
   }
 
   .home-feature-team .team-mark.is-large {
-    width: 42px;
-    height: 42px;
+    width: 36px;
+    height: 36px;
   }
 
   .home-feature-card .team-mark.is-football img,
@@ -5259,17 +5274,26 @@ body {
   }
 
   .home-feature-team strong {
-    font-size: 0.94rem;
+    font-size: 0.84rem;
   }
 
   .home-feature-center {
     justify-items: start;
-    gap: 2px;
+    gap: 1px;
+  }
+
+  .home-feature-center small {
+    font-size: 0.58rem;
+  }
+
+  .home-feature-center strong {
+    font-size: 0.76rem;
   }
 
   .home-feature-meta {
-    padding-top: 9px;
-    font-size: 0.72rem;
+    gap: 7px;
+    padding-top: 7px;
+    font-size: 0.66rem;
   }
 
   .home-summary-strip {
@@ -5336,7 +5360,7 @@ body {
   }
 
   .home-hero {
-    min-height: 292px;
+    min-height: 260px;
   }
 
   .home-summary-strip {
@@ -5368,7 +5392,7 @@ body {
   }
 
   .home-hero {
-    min-height: 280px;
+    min-height: 252px;
   }
 }
 
