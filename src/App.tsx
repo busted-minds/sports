@@ -5,7 +5,6 @@ import {
   ChevronRight,
   Clock3,
   ExternalLink,
-  ListFilter,
   Loader2,
   RefreshCw,
   Search,
@@ -129,14 +128,17 @@ export default function App() {
     [sportSummaries],
   );
   const normalizedSearch = searchTerm.trim().toLowerCase();
-  const filteredGames = useMemo(() => {
+  const pageGames = useMemo(() => {
     return games.filter((match) => {
       if (sportFilter !== "all" && match.sportKey !== sportFilter) return false;
       if (statusFilter !== "all" && match.status !== statusFilter) return false;
-      if (normalizedSearch && !matchSearchText(match).includes(normalizedSearch)) return false;
       return true;
     });
-  }, [games, normalizedSearch, sportFilter, statusFilter]);
+  }, [games, sportFilter, statusFilter]);
+  const filteredGames = useMemo(() => {
+    if (!normalizedSearch) return pageGames;
+    return pageGames.filter((match) => matchSearchText(match).includes(normalizedSearch));
+  }, [normalizedSearch, pageGames]);
   const liveGames = useMemo(
     () => games.filter((match) => match.status === "live").slice(0, 6),
     [games],
@@ -152,7 +154,12 @@ export default function App() {
   const selectedSource = selectedMatch?.sources[sourceIndex] ?? selectedMatch?.sources[0] ?? null;
   const hasNextSource = (selectedMatch?.sources.length ?? 0) > 1;
   const isRefreshing = loading || refreshing;
-  const filtersActive = Boolean(normalizedSearch) || sportFilter !== "all" || statusFilter !== "all";
+  const searchActive = Boolean(normalizedSearch);
+  const homePageActive = pageMode === "home";
+  const livePageActive = pageMode === "slate" && sportFilter === "all" && statusFilter === "live";
+  const nextPageActive = pageMode === "slate" && sportFilter === "all" && statusFilter === "upcoming";
+  const queueTitle = pageQueueTitle(sportFilter, statusFilter, sportSummaries);
+  const pageScope = pageScopeLabel(sportFilter, statusFilter, sportSummaries);
 
   useEffect(() => {
     if (!games.length) {
@@ -160,12 +167,12 @@ export default function App() {
       return;
     }
 
-    const selectableGames = filteredGames.length ? filteredGames : games;
+    const selectableGames = filteredGames.length ? filteredGames : pageGames.length ? pageGames : games;
     if (selectedId && selectableGames.some((match) => match.id === selectedId)) return;
 
     const nextMatch = pickPreferredMatch(selectableGames, defaultSportKey);
     if (nextMatch) setSelectedId(nextMatch.id);
-  }, [filteredGames, games, selectedId]);
+  }, [filteredGames, games, pageGames, selectedId]);
 
   useEffect(() => {
     if (sportFilter === "all") return;
@@ -198,10 +205,8 @@ export default function App() {
     setSourceIndex((currentIndex) => (currentIndex + 1) % selectedMatch.sources.length);
   };
 
-  const clearFilters = () => {
+  const clearSearch = () => {
     setSearchTerm("");
-    setSportFilter("all");
-    setStatusFilter("all");
   };
 
   const openHome = () => {
@@ -212,8 +217,15 @@ export default function App() {
   };
 
   const openStatusPage = (nextStatus: NavigableStatus) => {
+    const nextMatch = pickPreferredMatch(
+      games.filter((match) => match.status === nextStatus),
+      defaultSportKey,
+    );
     setPageMode("slate");
+    setSearchTerm("");
+    setSportFilter("all");
     setStatusFilter(nextStatus);
+    setSelectedId(nextMatch?.id ?? "");
   };
 
   const openMatch = (match: Match) => {
@@ -223,20 +235,23 @@ export default function App() {
   };
 
   const openSport = (sportKey: string) => {
+    const nextMatch = pickPreferredMatch(
+      games.filter((match) => match.sportKey === sportKey),
+      sportKey,
+    );
+    setSearchTerm("");
     setSportFilter(sportKey);
     setStatusFilter("all");
     setPageMode("slate");
+    setSelectedId(nextMatch?.id ?? "");
   };
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     if (value.trim()) setPageMode("slate");
   };
-
-  const toggleHeaderSport = (sportKey: string) => {
-    setPageMode("slate");
-    setSportFilter((currentSport) => (currentSport === sportKey ? "all" : sportKey));
-  };
+  const selectedHeaderAccent = selectedMatch ? sportAccent(selectedMatch.sportKey) : "generic";
+  const selectedSportIcon = selectedMatch ? sportIconForKey(selectedMatch.sportKey) : "";
 
   return (
     <div className="app-shell">
@@ -255,7 +270,7 @@ export default function App() {
           </a>
         </div>
 
-        <div className="topbar-workspace" aria-label="Main navigation and sport filters">
+        <div className="topbar-workspace" aria-label="Main navigation and sport pages">
           <label className="search-box header-search">
             <Search size={16} aria-hidden="true" />
             <input
@@ -278,35 +293,35 @@ export default function App() {
           </label>
 
           <div className="header-status-strip" role="group" aria-label="Main pages">
-            <FilterButton
+            <HeaderNavButton
               icon={HomeNavIcon}
               label="Home"
-              active={pageMode === "home"}
+              active={homePageActive}
               onClick={openHome}
             />
-            <FilterButton
+            <HeaderNavButton
               icon={LiveNavIcon}
               label="Live"
               count={slateStats.live}
-              active={pageMode === "slate" && statusFilter === "live"}
+              active={livePageActive}
               onClick={() => openStatusPage("live")}
             />
-            <FilterButton
+            <HeaderNavButton
               icon={NextNavIcon}
               label="Next"
               count={slateStats.upcoming}
-              active={pageMode === "slate" && statusFilter === "upcoming"}
+              active={nextPageActive}
               onClick={() => openStatusPage("upcoming")}
             />
           </div>
 
-          <div className="header-sport-strip" role="group" aria-label="Filter primary sports">
+          <div className="header-sport-strip" role="group" aria-label="Primary sport pages">
             {sportFocusItems.map((sport) => (
               <HeaderSportButton
                 key={sport.key}
                 sport={sport}
-                active={sportFilter === sport.key}
-                onSelect={() => toggleHeaderSport(sport.key)}
+                active={pageMode === "slate" && statusFilter === "all" && sportFilter === sport.key}
+                onSelect={() => openSport(sport.key)}
               />
             ))}
           </div>
@@ -344,7 +359,6 @@ export default function App() {
               liveGames={liveGames}
               upcomingGames={upcomingGames}
               sportFocusItems={sportFocusItems}
-              updatedAt={updatedAt}
               onOpenStatus={openStatusPage}
               onSelectMatch={openMatch}
               onSelectSport={openSport}
@@ -384,17 +398,29 @@ export default function App() {
                 />
               </div>
 
-              <div className="match-header">
+              <div className={`match-header is-${selectedHeaderAccent}`}>
                 <div className="team-title">
                   {selectedMatch?.homeBadge ? (
                     <img src={selectedMatch.homeBadge} alt="" className="team-badge large" />
+                  ) : selectedSportIcon ? (
+                    <span className={`badge-fallback match-sport-mark is-${selectedHeaderAccent}`}>
+                      <img src={selectedSportIcon} alt="" loading="lazy" decoding="async" draggable="false" />
+                    </span>
                   ) : (
                     <span className="badge-fallback">
                       {initials(selectedMatch?.homeTeam ?? "BM")}
                     </span>
                   )}
-                  <div>
-                    <p>{selectedMatch?.sportLabel ?? "Busted Minds Sports"}</p>
+                  <div className="match-title-copy">
+                    <div className="match-title-kicker">
+                      <p>{selectedMatch?.sportLabel ?? "Busted Minds Sports"}</p>
+                      {selectedMatch ? (
+                        <span className={selectedMatch.status === "live" ? "match-status-pill is-live" : "match-status-pill is-upcoming"}>
+                          <span />
+                          {selectedMatch.status === "live" ? "Live" : "Upcoming"}
+                        </span>
+                      ) : null}
+                    </div>
                     <h1>{selectedMatch ? matchTitle(selectedMatch) : "No game selected"}</h1>
                   </div>
                 </div>
@@ -448,26 +474,20 @@ export default function App() {
               <div className="panel-heading">
                 <div>
                   <span className="eyebrow">Queue</span>
-                  <h2>
-                    {statusFilter === "live"
-                      ? "Live Games"
-                      : statusFilter === "upcoming"
-                        ? "Up Next"
-                        : "Game Queue"}
-                  </h2>
+                  <h2>{queueTitle}</h2>
                 </div>
                 <span className="count-pill">{filteredGames.length}</span>
               </div>
 
-              {filtersActive ? (
+              {searchActive ? (
                 <div className="games-controls">
                   <div className="active-filter-line">
-                    <span>{filteredGames.length} of {games.length}</span>
-                    <strong>{activeFilterLabel(sportFilter, statusFilter, sportSummaries)}</strong>
+                    <span>{filteredGames.length} of {pageGames.length}</span>
+                    <strong>Search in {pageScope}</strong>
                   </div>
-                  <button type="button" className="clear-filters" onClick={clearFilters}>
-                    <ListFilter size={15} aria-hidden="true" />
-                    Clear filters
+                  <button type="button" className="clear-filters" onClick={clearSearch}>
+                    <X size={15} aria-hidden="true" />
+                    Clear search
                   </button>
                 </div>
               ) : null}
@@ -486,17 +506,17 @@ export default function App() {
                   ))
                 ) : (
                   <EmptyState
-                    icon={filtersActive ? Search : error ? WifiOff : CalendarDays}
+                    icon={searchActive ? Search : error ? WifiOff : CalendarDays}
                     title={
-                      filtersActive
+                      searchActive
                         ? "No matching games"
                         : error && !fromCache
                           ? "Games unavailable"
                           : "No games right now"
                     }
                     detail={
-                      filtersActive
-                        ? "Try a different search or clear the active filters"
+                      searchActive
+                        ? "Try a different search"
                         : error && !fromCache
                           ? error
                           : "Refresh again when the next slate is ready"
@@ -578,6 +598,47 @@ export default function App() {
         </section>
       </main>
 
+      <nav className="mobile-tabbar" aria-label="Quick navigation">
+        <button
+          type="button"
+          className={homePageActive ? "mobile-tabbar-button is-active" : "mobile-tabbar-button"}
+          onClick={openHome}
+          aria-current={homePageActive ? "page" : undefined}
+        >
+          <HomeNavIcon size={18} aria-hidden="true" />
+          <span>Home</span>
+        </button>
+        <button
+          type="button"
+          className={livePageActive ? "mobile-tabbar-button is-active" : "mobile-tabbar-button"}
+          onClick={() => openStatusPage("live")}
+          aria-current={livePageActive ? "page" : undefined}
+        >
+          <LiveNavIcon size={18} aria-hidden="true" />
+          <span>Live</span>
+          <small>{slateStats.live}</small>
+        </button>
+        <button
+          type="button"
+          className={nextPageActive ? "mobile-tabbar-button is-active" : "mobile-tabbar-button"}
+          onClick={() => openStatusPage("upcoming")}
+          aria-current={nextPageActive ? "page" : undefined}
+        >
+          <NextNavIcon size={18} aria-hidden="true" />
+          <span>Next</span>
+          <small>{slateStats.upcoming}</small>
+        </button>
+        <button
+          type="button"
+          className="mobile-tabbar-button"
+          onClick={() => void refresh(false)}
+          aria-label="Refresh games"
+        >
+          {isRefreshing ? <Loader2 className="spin" size={18} /> : <RefreshCw size={18} />}
+          <span>Refresh</span>
+        </button>
+      </nav>
+
       <footer className="site-footer">
         <span className="footer-powered-label">powered by</span>
         <a
@@ -609,7 +670,7 @@ function HeaderSportButton({
       type="button"
       className={active ? `header-sport is-${sport.accent} is-active` : `header-sport is-${sport.accent}`}
       onClick={onSelect}
-      aria-pressed={active}
+      aria-current={active ? "page" : undefined}
       aria-label={`${sport.label}: ${sport.total} games, ${sport.live} live, ${sport.upcoming} upcoming`}
     >
       <span className="header-sport-icon">
@@ -774,7 +835,6 @@ function HomePage({
   liveGames,
   upcomingGames,
   sportFocusItems,
-  updatedAt,
   onOpenStatus,
   onSelectMatch,
   onSelectSport,
@@ -785,7 +845,6 @@ function HomePage({
   liveGames: Match[];
   upcomingGames: Match[];
   sportFocusItems: HeaderSportSummary[];
-  updatedAt: number | null;
   onOpenStatus: (status: NavigableStatus) => void;
   onSelectMatch: (match: Match) => void;
   onSelectSport: (sportKey: string) => void;
@@ -803,6 +862,9 @@ function HomePage({
       <section className="home-hero">
         <img className="home-hero-art" src={homeThumbnailUrl} alt="" />
         <span className="home-hero-shade" />
+        <div className="home-hero-brandmarks" aria-hidden="true">
+          <img className="home-hero-brandmark is-parent" src={parentLogoUrl} alt="" />
+        </div>
 
         <div className="home-hero-content">
           {heroMatch ? (
@@ -833,18 +895,6 @@ function HomePage({
               </button>
             ) : null}
           </div>
-        </div>
-
-        <div className="home-hero-metrics" aria-label="Slate summary">
-          <HomeMetric icon={LiveNavIcon} label="Live" value={slateStats.live.toLocaleString()} tone="live" />
-          <HomeMetric icon={NextNavIcon} label="Next" value={slateStats.upcoming.toLocaleString()} tone="next" />
-          <HomeMetric icon={Server} label="Servers" value={slateStats.servers.toLocaleString()} tone="neutral" />
-          <HomeMetric
-            icon={ShieldCheck}
-            label="Catalog"
-            value={updatedAt ? timeAgo(updatedAt) : loading ? "Loading" : "Pending"}
-            tone={updatedAt ? "good" : "neutral"}
-          />
         </div>
       </section>
 
@@ -918,26 +968,6 @@ function HomePage({
         </div>
       </section>
     </section>
-  );
-}
-
-function HomeMetric({
-  icon: Icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: AppIcon;
-  label: string;
-  value: string;
-  tone: "live" | "next" | "neutral" | "good";
-}) {
-  return (
-    <div className={`home-metric is-${tone}`}>
-      <Icon size={18} aria-hidden="true" />
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
   );
 }
 
@@ -1016,6 +1046,7 @@ function MatchCard({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const accent = sportAccent(match.sportKey);
   const dateLabel = match.status === "live" ? "Now" : match.dateLabel || "TBA";
   const timeLabel =
     match.status === "live"
@@ -1023,15 +1054,13 @@ function MatchCard({
         ? match.timeLabel
         : ""
       : match.timeLabel || "";
+  const sportIcon = sportIconForKey(match.sportKey);
+  const useSportMark = Boolean(sportIcon && !match.awayTeam && !match.homeBadge);
 
   return (
     <button
       type="button"
-      className={
-        selected
-          ? `match-card is-${match.status} is-selected`
-          : `match-card is-${match.status}`
-      }
+      className={`match-card is-${match.status} is-${accent}${selected ? " is-selected" : ""}`}
       onClick={onSelect}
       aria-pressed={selected}
     >
@@ -1051,6 +1080,10 @@ function MatchCard({
           <span className="queue-team">
             {match.homeBadge ? (
               <img src={match.homeBadge} alt="" className="queue-team-badge" loading="lazy" />
+            ) : useSportMark ? (
+              <span className={`queue-badge-fallback queue-sport-mark is-${accent}`}>
+                <img src={sportIcon} alt="" loading="lazy" decoding="async" draggable="false" />
+              </span>
             ) : (
               <span className="queue-badge-fallback">{initials(match.homeTeam)}</span>
             )}
@@ -1080,7 +1113,7 @@ function MatchCard({
   );
 }
 
-function FilterButton({
+function HeaderNavButton({
   icon: Icon,
   label,
   count,
@@ -1096,11 +1129,11 @@ function FilterButton({
   return (
     <button
       type="button"
-      className={active ? "filter-button is-active" : "filter-button"}
+      className={active ? "header-nav-button is-active" : "header-nav-button"}
       onClick={onClick}
-      aria-pressed={active}
+      aria-current={active ? "page" : undefined}
     >
-      <span className="filter-button-label">
+      <span className="header-nav-button-label">
         {Icon ? <Icon size={15} className="bm-nav-icon" aria-hidden="true" /> : null}
         <span>{label}</span>
       </span>
@@ -1262,7 +1295,25 @@ function sportSummaryOrFallback(
   );
 }
 
-function activeFilterLabel(
+function sportIconForKey(key: string) {
+  const visualKey = sportVisualKey(key);
+  if (visualKey === "football") return footballIconUrl;
+  if (visualKey === "cricket") return cricketIconUrl;
+  return "";
+}
+
+function sportAccent(key: string) {
+  return sportVisualKey(key);
+}
+
+function sportVisualKey(key: string) {
+  const normalized = key.toLowerCase();
+  if (normalized.includes("football") || normalized.includes("soccer")) return "football";
+  if (normalized.includes("cricket")) return "cricket";
+  return "generic";
+}
+
+function pageQueueTitle(
   sportFilter: string,
   statusFilter: StatusFilter,
   sportSummaries: Map<string, SportSummary>,
@@ -1271,9 +1322,31 @@ function activeFilterLabel(
     sportFilter === "all"
       ? "All sports"
       : sportSummaries.get(sportFilter)?.label ?? formatSportKey(sportFilter);
-  const statusLabel =
-    statusFilter === "live" ? "Live only" : statusFilter === "upcoming" ? "Upcoming only" : "All games";
-  return `${sportLabel} · ${statusLabel}`;
+
+  if (sportFilter !== "all" && statusFilter === "live") return `${sportLabel} Live Games`;
+  if (sportFilter !== "all" && statusFilter === "upcoming") return `${sportLabel} Next Matches`;
+  if (sportFilter !== "all") return `${sportLabel} Games`;
+  if (statusFilter === "live") return "Live Games";
+  if (statusFilter === "upcoming") return "Next Matches";
+  return "Game Queue";
+}
+
+function pageScopeLabel(
+  sportFilter: string,
+  statusFilter: StatusFilter,
+  sportSummaries: Map<string, SportSummary>,
+) {
+  const sportLabel =
+    sportFilter === "all"
+      ? "All sports"
+      : sportSummaries.get(sportFilter)?.label ?? formatSportKey(sportFilter);
+
+  if (sportFilter !== "all" && statusFilter === "live") return `${sportLabel} live games`;
+  if (sportFilter !== "all" && statusFilter === "upcoming") return `${sportLabel} next matches`;
+  if (sportFilter !== "all") return sportLabel;
+  if (statusFilter === "live") return "Live";
+  if (statusFilter === "upcoming") return "Next";
+  return "All games";
 }
 
 function formatSportKey(value: string) {
