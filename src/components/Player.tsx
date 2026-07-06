@@ -224,7 +224,6 @@ function proxiedMediaUrl(value: string) {
 }
 
 const standardIframeSandbox = "allow-scripts allow-same-origin allow-forms allow-presentation";
-const strictIframeSandbox = "allow-scripts allow-forms allow-presentation";
 
 const popupCleanupHosts = new Set([
   "footsters-live.pages.dev",
@@ -250,7 +249,7 @@ function cleanedIframeSource(value: string) {
       params.append(key, paramValue);
     });
 
-    return { url: `/api/proxy?${params.toString()}`, sandbox: strictIframeSandbox };
+    return { url: `/api/proxy?${params.toString()}`, sandbox: standardIframeSandbox };
   } catch {
     return { url: value, sandbox: standardIframeSandbox };
   }

@@ -91,7 +91,6 @@ async function proxyRequest(request, response) {
     const contentType = upstream.headers.get("content-type") || "";
     if (cleanMode === "stream-popup" && contentType.includes("text/html")) {
       response.setHeader("content-type", "text/html; charset=utf-8");
-      response.setHeader("content-security-policy", streamCleanupCsp());
       response.end(cleanStreamPopupHtml(await upstream.text(), targetUrl));
       return;
     }
@@ -183,21 +182,6 @@ function proxiedApiUrl(apiUrl, upstreamOrigin) {
     url: apiUrl,
   });
   return `/api/proxy?${params.toString()}`;
-}
-
-function streamCleanupCsp() {
-  return [
-    "default-src * blob: data: 'unsafe-inline' 'unsafe-eval'",
-    "script-src * blob: data: 'unsafe-inline' 'unsafe-eval'",
-    "style-src * 'unsafe-inline'",
-    "img-src * blob: data:",
-    "media-src * blob: data:",
-    "connect-src *",
-    "font-src * data:",
-    "frame-src *",
-    "worker-src * blob:",
-    "navigate-to 'self'",
-  ].join("; ");
 }
 
 function rewriteHlsManifest(manifest, playlistUrl) {
