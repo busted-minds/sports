@@ -381,6 +381,42 @@ export default function App() {
         </div>
 
         <div className="topbar-workspace" aria-label="Main navigation and sport pages">
+          <div className="header-primary-nav">
+            <div className="header-status-strip" role="group" aria-label="Main pages">
+              <HeaderNavButton
+                icon={HomeNavIcon}
+                label="Home"
+                active={homePageActive}
+                onClick={openHome}
+              />
+              <HeaderNavButton
+                icon={LiveNavIcon}
+                label="Live"
+                count={slateStats.live}
+                active={livePageActive}
+                onClick={() => openStatusPage("live")}
+              />
+              <HeaderNavButton
+                icon={Activity}
+                label="Scores"
+                count={scoreMatches.length}
+                active={scoresPageActive}
+                onClick={openScores}
+              />
+            </div>
+
+            <div className="header-sport-strip" role="group" aria-label="Primary sport pages">
+              {sportFocusItems.map((sport) => (
+                <HeaderSportButton
+                  key={sport.key}
+                  sport={sport}
+                  active={pageMode === "slate" && statusFilter === "all" && sportFilter === sport.key}
+                  onSelect={() => openSport(sport.key)}
+                />
+              ))}
+            </div>
+          </div>
+
           <label className="search-box header-search">
             <Search size={16} aria-hidden="true" />
             <input
@@ -403,40 +439,6 @@ export default function App() {
               </button>
             ) : null}
           </label>
-
-          <div className="header-status-strip" role="group" aria-label="Main pages">
-            <HeaderNavButton
-              icon={HomeNavIcon}
-              label="Home"
-              active={homePageActive}
-              onClick={openHome}
-            />
-            <HeaderNavButton
-              icon={LiveNavIcon}
-              label="Live"
-              count={slateStats.live}
-              active={livePageActive}
-              onClick={() => openStatusPage("live")}
-            />
-            <HeaderNavButton
-              icon={Activity}
-              label="Scores"
-              count={scoreMatches.length}
-              active={scoresPageActive}
-              onClick={openScores}
-            />
-          </div>
-
-          <div className="header-sport-strip" role="group" aria-label="Primary sport pages">
-            {sportFocusItems.map((sport) => (
-              <HeaderSportButton
-                key={sport.key}
-                sport={sport}
-                active={pageMode === "slate" && statusFilter === "all" && sportFilter === sport.key}
-                onSelect={() => openSport(sport.key)}
-              />
-            ))}
-          </div>
         </div>
 
         <div className="header-actions">
@@ -641,22 +643,29 @@ export default function App() {
                 </div>
                 <div className="source-list">
                   {selectedMatch?.sources.length ? (
-                    selectedMatch.sources.map((source, index) => (
-                      <button
-                        key={source.id}
-                        type="button"
-                        className={index === sourceIndex ? "source-button is-active" : "source-button"}
-                        onClick={() => setSourceIndex(index)}
-                        aria-pressed={index === sourceIndex}
-                        title={`${sourceDisplayName(source)} - ${sourceKindLabel(source.kind)}`}
-                      >
-                        <span className="source-name">{sourceDisplayName(source)}</span>
-                        <span className="source-meta">
-                          <small>{sourceKindLabel(source.kind)}</small>
-                          <small>{sourceReliabilityLabel(source)}</small>
-                        </span>
-                      </button>
-                    ))
+                    selectedMatch.sources.map((source, index) => {
+                      const fullName = sourceDisplayName(source);
+                      const compactName = sourceCompactDisplayName(source);
+
+                      return (
+                        <button
+                          key={source.id}
+                          type="button"
+                          className={index === sourceIndex ? "source-button is-active" : "source-button"}
+                          onClick={() => setSourceIndex(index)}
+                          aria-label={`Use ${fullName} feed`}
+                          aria-pressed={index === sourceIndex}
+                          title={`${fullName} - ${sourceKindLabel(source.kind)}`}
+                        >
+                          <span className="source-name source-name-compact" aria-hidden="true">
+                            {compactName}
+                          </span>
+                          <span className="source-name source-name-full" aria-hidden="true">
+                            {fullName}
+                          </span>
+                        </button>
+                      );
+                    })
                   ) : (
                     <span className="quiet-text">No feeds available</span>
                   )}
@@ -1141,14 +1150,10 @@ function HomePage({
   onSelectSport: (sportKey: string) => void;
 }) {
   const heroMatch = pickPreferredMatch(games, defaultSportKey);
-  const heroStatus = heroMatch?.status === "upcoming" ? "Next" : "Live";
   const heroAccent = heroMatch ? sportAccent(heroMatch.sportKey) : "generic";
   const heroSportIcon = heroMatch ? sportIconForKey(heroMatch.sportKey) : "";
-  const heroMeta = heroMatch
-    ? [heroMatch.sportLabel, heroMatch.league, heroMatch.timeLabel || heroMatch.dateLabel]
-        .filter(Boolean)
-        .join(" / ")
-    : "Busted Minds Sports";
+  const heroFeatureLabel = heroMatch?.status === "live" ? "Featured live match" : "Featured upcoming match";
+  const heroSportActions = sportFocusItems.slice(0, 2);
 
   return (
     <section className="home-page" aria-label="Home">
@@ -1163,33 +1168,24 @@ function HomePage({
         </div>
 
         <div className="home-hero-content">
-          {heroMatch ? (
-            <span className={heroMatch.status === "live" ? "event-tag is-live" : "event-tag is-upcoming"}>
-              <span />
-              {heroStatus}
-            </span>
-          ) : (
-            <span className="home-kicker">Home</span>
-          )}
-          <h1>{heroMatch ? matchTitle(heroMatch) : "Busted Minds Sports"}</h1>
-          <p>{heroMeta}</p>
-          <div className="home-hero-actions">
-            <button type="button" className="home-hero-button is-live" onClick={() => onOpenStatus("live")}>
-              <LiveNavIcon size={16} aria-hidden="true" />
-              <span>Live</span>
-              <small>{slateStats.live}</small>
-            </button>
-            <button type="button" className="home-hero-button is-next" onClick={() => onOpenStatus("upcoming")}>
-              <NextNavIcon size={16} aria-hidden="true" />
-              <span>Next</span>
-              <small>{slateStats.upcoming}</small>
-            </button>
-            {heroMatch ? (
-              <button type="button" className="home-hero-link" onClick={() => onSelectMatch(heroMatch)}>
-                <span>Open</span>
-                <ChevronRight size={17} aria-hidden="true" />
+          <div className="home-hero-copy">
+            <span className="home-hero-welcome">Busted Minds Sports</span>
+            <h1>Every match, one place.</h1>
+            <p>Pick a sport, jump into a live stream, and keep scores close.</p>
+          </div>
+          <div className="home-hero-sport-actions">
+            {heroSportActions.map((sport) => (
+              <button
+                key={sport.key}
+                type="button"
+                aria-label={`Watch ${sport.label}`}
+                className={`home-hero-sport-action is-${sport.accent}`}
+                onClick={() => onSelectSport(sport.key)}
+              >
+                <img src={sport.iconSrc} alt="" loading="lazy" decoding="async" draggable="false" />
+                <span>Watch {sport.label}</span>
               </button>
-            ) : null}
+            ))}
           </div>
         </div>
         {heroMatch ? (
@@ -1199,7 +1195,7 @@ function HomePage({
             onClick={() => onSelectMatch(heroMatch)}
             aria-label={`Open ${matchTitle(heroMatch)}`}
           >
-            <span className="home-feature-label">Featured match</span>
+            <span className={`home-feature-label is-${heroMatch.status}`}>{heroFeatureLabel}</span>
             <span className={heroMatch.awayTeam ? "home-feature-matchup" : "home-feature-matchup is-channel"}>
               <span className="home-feature-team">
                 <TeamMark
@@ -1212,7 +1208,6 @@ function HomePage({
                 <strong>{heroMatch.homeTeam}</strong>
               </span>
               <span className="home-feature-center">
-                <small>{heroMatch.status === "live" ? "Live" : "Next"}</small>
                 <strong>{heroMatch.awayTeam ? "VS" : "ON AIR"}</strong>
               </span>
               {heroMatch.awayTeam ? (
@@ -2683,7 +2678,11 @@ function HeaderNavButton({
       aria-current={active ? "page" : undefined}
     >
       <span className="header-nav-button-label">
-        {Icon ? <Icon size={15} className="bm-nav-icon" aria-hidden="true" /> : null}
+        {Icon ? (
+          <span className="header-nav-icon">
+            <Icon size={15} className="bm-nav-icon" aria-hidden="true" />
+          </span>
+        ) : null}
         <span>{label}</span>
       </span>
       {typeof count === "number" ? <small>{count}</small> : null}
@@ -2938,8 +2937,42 @@ function sourceDisplayName(source: StreamSource) {
   return sourceKindLabel(source.kind) === "Web" ? "Web player" : "Stream source";
 }
 
-function sourceReliabilityLabel(source: StreamSource) {
-  return sourceRank(source) >= 4 ? "Backup" : "Primary";
+function sourceCompactDisplayName(source: StreamSource) {
+  return compactSourceName(sourceDisplayName(source));
+}
+
+function compactSourceName(value: string) {
+  const compact = value
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/\s*[\[(][^\])]*(?:1080p|720p|576p|50fps|60fps|hevc|h\.?26[45]|fhd|uhd|hd)[^\])]*[\])]\s*/gi, " ")
+    .replace(/\bBBC\s+ONE\b/gi, "BBC 1")
+    .replace(/\bBBC\s+TWO\b/gi, "BBC 2")
+    .replace(/\bBBC\s+THREE\b/gi, "BBC 3")
+    .replace(/\bBBC\s+FOUR\b/gi, "BBC 4")
+    .replace(/\bbeIN\s+Sports\b/gi, "beIN")
+    .replace(/\bSports\b/gi, "")
+    .replace(/\bSport\b/gi, "")
+    .replace(/\bChannel\b/gi, "")
+    .replace(/\bStream\b/gi, "")
+    .replace(/\bTelevision\b/gi, "TV")
+    .replace(/\bUnited States\b/gi, "US")
+    .replace(/\bUnited Kingdom\b/gi, "UK")
+    .replace(/\bPortugal\b/gi, "PT")
+    .replace(/\bGermany\b/gi, "DE")
+    .replace(/\bFrance\b/gi, "FR")
+    .replace(/\bSpain\b/gi, "ES")
+    .replace(/\bItaly\b/gi, "IT")
+    .replace(/\bCanada\b/gi, "CA")
+    .replace(/\bAustralia\b/gi, "AU")
+    .replace(/\bBrazil\b/gi, "BR")
+    .replace(/\bIndia\b/gi, "IN")
+    .replace(/\bServer\s+0+(\d+)\b/gi, "Server $1")
+    .replace(/\s+/g, " ")
+    .replace(/\s+([:|/-])\s+/g, "$1")
+    .trim();
+
+  return compact || value;
 }
 
 function sourceKindLabel(kind: StreamSource["kind"]) {

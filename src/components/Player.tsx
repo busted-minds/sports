@@ -112,6 +112,7 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
   }
 
   if (source.kind === "iframe") {
+    const iframeSource = cleanedIframeSource(source.url);
     const iframeTitle =
       iframeState === "failed"
         ? "This source refused to connect"
@@ -123,10 +124,11 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
       <div className="player-viewport">
         <iframe
           key={source.url}
-          src={source.url}
+          src={iframeSource.url}
           title={`${match.name} stream`}
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture; accelerometer; gyroscope"
           allowFullScreen
+          sandbox={iframeSource.sandbox}
           onLoad={() => setIframeState("loaded")}
           onError={() => setIframeState("failed")}
           referrerPolicy="no-referrer"
@@ -218,5 +220,38 @@ function proxiedMediaUrl(value: string) {
     return `/api/proxy?url=${encodeURIComponent(value)}`;
   } catch {
     return value;
+  }
+}
+
+const standardIframeSandbox = "allow-scripts allow-same-origin allow-forms allow-presentation";
+const strictIframeSandbox = "allow-scripts allow-forms allow-presentation";
+
+const popupCleanupHosts = new Set([
+  "footsters-live.pages.dev",
+  "footsters-tv.pages.dev",
+  "footsters.pages.dev",
+  "footsterss.pages.dev",
+]);
+
+function cleanedIframeSource(value: string) {
+  try {
+    const parsed = new URL(value);
+    if (!popupCleanupHosts.has(parsed.hostname.toLowerCase())) {
+      return { url: value, sandbox: standardIframeSandbox };
+    }
+
+    const params = new URLSearchParams({
+      clean: "stream-popup",
+      url: parsed.toString(),
+    });
+
+    parsed.searchParams.forEach((paramValue, key) => {
+      if (key === "clean" || key === "url") return;
+      params.append(key, paramValue);
+    });
+
+    return { url: `/api/proxy?${params.toString()}`, sandbox: strictIframeSandbox };
+  } catch {
+    return { url: value, sandbox: standardIframeSandbox };
   }
 }

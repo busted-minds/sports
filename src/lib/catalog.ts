@@ -102,6 +102,7 @@ const fallbackServers: Record<string, Array<{ name: string; url: string }>> = {
     { name: "Telemundo", url: "https://telemundo.vercel.app/" },
     { name: "Bein1 IOS", url: "https://footsterss.pages.dev/ios?id=bein1iOS" },
     { name: "cazetv", url: "https://footsterss.pages.dev?id=cazetvprime" },
+    { name: "Dsports", url: "https://cinearena-fun.pages.dev/chns/dsports" },
   ],
   cricket: [
     { name: "Willow", url: "https://techy-kuldeep-cric-liart.vercel.app/WILLOWSPORTS.html" },
@@ -380,8 +381,8 @@ function normalizeDbMatch(
     awayBadge: "",
     poster: "",
     startsAt,
-    timeLabel: asText(row.match_time, startsAt ? formatTime(startsAt) : ""),
-    dateLabel: asText(row.match_date, startsAt ? formatDate(startsAt) : ""),
+    timeLabel: startsAt ? formatTime(startsAt) : asText(row.match_time),
+    dateLabel: startsAt ? formatDate(startsAt) : asText(row.match_date),
     viewers: normalizeViewers(undefined, `db:${rawId}:${homeTeam}`),
     sources: mergeSources(matchSources, sportSources),
   };
