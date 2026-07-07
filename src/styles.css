@@ -11814,3 +11814,21 @@ a:focus-visible {
     margin-top: 26px;
   }
 }
+
+.match-card.is-unavailable,
+.schedule-row.is-unavailable {
+  cursor: default;
+  opacity: 0.78;
+}
+
+.match-card.is-unavailable:hover,
+.schedule-row.is-unavailable:hover,
+.match-card.is-unavailable:focus-visible,
+.schedule-row.is-unavailable:focus-visible {
+  border-color: rgba(66, 214, 255, 0.3);
+}
+
+.match-card.is-unavailable .event-tag.is-upcoming,
+.schedule-row.is-unavailable > svg {
+  color: var(--muted);
+}

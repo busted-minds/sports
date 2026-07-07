@@ -3,36 +3,119 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="application-name" content="Busted Minds Sports" />
+    <meta name="apple-mobile-web-app-title" content="Busted Minds Sports" />
     <meta
       name="description"
-      content="Busted Minds Sports is powered by Busted Minds for live matches, schedules, and stream sources."
+      content="Busted Minds Sports brings live football and cricket streams, match schedules, live scores, and multi-feed game coverage into one fast sports hub."
     />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large" />
+    <meta name="author" content="Busted Minds" />
     <meta name="theme-color" content="#070708" />
     <link rel="canonical" href="https://sports.bustedminds.us.kg/" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/sports-icon-512.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta property="og:site_name" content="Busted Minds Sports" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Busted Minds Sports" />
+    <meta
+      property="og:title"
+      content="Live Sports Streams, Scores & Match Schedule | Busted Minds Sports"
+    />
     <meta
       property="og:description"
-      content="Powered by Busted Minds for live matches, schedules, and stream sources."
+      content="Live football and cricket streams, match schedules, live scores, and multi-feed game coverage from Busted Minds Sports."
     />
     <meta property="og:url" content="https://sports.bustedminds.us.kg/" />
     <meta property="og:image" content="https://sports.bustedminds.us.kg/home-thumbnail-og.png" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Busted Minds Sports live match dashboard" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Busted Minds Sports" />
+    <meta
+      name="twitter:title"
+      content="Live Sports Streams, Scores & Match Schedule | Busted Minds Sports"
+    />
     <meta
       name="twitter:description"
-      content="Powered by Busted Minds for live matches, schedules, and stream sources."
+      content="Live football and cricket streams, match schedules, live scores, and multi-feed game coverage from Busted Minds Sports."
     />
     <meta name="twitter:image" content="https://sports.bustedminds.us.kg/home-thumbnail-og.png" />
-    <title>Busted Minds Sports</title>
+    <meta name="twitter:image:alt" content="Busted Minds Sports live match dashboard" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://sports.bustedminds.us.kg/#organization",
+            "name": "Busted Minds",
+            "url": "https://bustedminds.us.kg/",
+            "logo": "https://sports.bustedminds.us.kg/Busted-Minds-Logo.png"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://sports.bustedminds.us.kg/#website",
+            "name": "Busted Minds Sports",
+            "url": "https://sports.bustedminds.us.kg/",
+            "description": "Live sports streams, match schedules, live scores, and multi-feed game coverage.",
+            "publisher": {
+              "@id": "https://sports.bustedminds.us.kg/#organization"
+            },
+            "inLanguage": "en"
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "https://sports.bustedminds.us.kg/#app",
+            "name": "Busted Minds Sports",
+            "url": "https://sports.bustedminds.us.kg/",
+            "applicationCategory": "SportsApplication",
+            "operatingSystem": "Any",
+            "isPartOf": {
+              "@id": "https://sports.bustedminds.us.kg/#website"
+            },
+            "image": "https://sports.bustedminds.us.kg/home-thumbnail-og.png",
+            "description": "A fast sports hub for live football and cricket streams, match schedules, live scores, and available feeds.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "featureList": [
+              "Live football streams",
+              "Live cricket streams",
+              "Upcoming match schedules",
+              "Live scores and results",
+              "Multiple stream feed sources"
+            ]
+          }
+        ]
+      }
+    </script>
+    <title>Live Sports Streams, Scores & Match Schedule | Busted Minds Sports</title>
   </head>
   <body>
+    <noscript>
+      <main>
+        <h1>Live Sports Streams, Scores, and Schedules</h1>
+        <p>
+          Busted Minds Sports covers live football streams, cricket streams, upcoming matches,
+          live scores, results, and available game feeds.
+        </p>
+        <nav aria-label="Primary sports pages">
+          <a href="/live">Live sports streams</a>
+          <a href="/schedule">Sports match schedule</a>
+          <a href="/scores">Live scores and results</a>
+          <a href="/football">Football streams and fixtures</a>
+          <a href="/cricket">Cricket streams and fixtures</a>
+        </nav>
+      </main>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

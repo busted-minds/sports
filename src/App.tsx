@@ -77,8 +77,83 @@ type AppIcon = ComponentType<{
   "aria-hidden"?: boolean | "true" | "false";
 }>;
 type HeaderSportSummary = SportSummary & { iconSrc: string; accent: string };
+type SeoRouteKey = "home" | "live" | "schedule" | "scores" | "football" | "cricket";
+type SeoRoute = {
+  key: SeoRouteKey;
+  path: string;
+  pageMode: PageMode;
+  sportFilter: string;
+  statusFilter: StatusFilter;
+  title: string;
+  description: string;
+};
+
+const siteBaseUrl = "https://sports.bustedminds.us.kg";
+const seoRoutes: Record<SeoRouteKey, SeoRoute> = {
+  home: {
+    key: "home",
+    path: "/",
+    pageMode: "home",
+    sportFilter: "all",
+    statusFilter: "all",
+    title: "Live Sports Streams, Scores & Match Schedule | Busted Minds Sports",
+    description:
+      "Busted Minds Sports brings live football and cricket streams, match schedules, live scores, and multi-feed game coverage into one fast sports hub.",
+  },
+  live: {
+    key: "live",
+    path: "/live",
+    pageMode: "slate",
+    sportFilter: "all",
+    statusFilter: "live",
+    title: "Live Sports Streams Today | Busted Minds Sports",
+    description:
+      "Watch live football and cricket streams with available feeds, game status, stream health signals, and quick access to live match coverage.",
+  },
+  schedule: {
+    key: "schedule",
+    path: "/schedule",
+    pageMode: "slate",
+    sportFilter: "all",
+    statusFilter: "upcoming",
+    title: "Sports Match Schedule & Upcoming Games | Busted Minds Sports",
+    description:
+      "See upcoming football and cricket fixtures, match times, and leagues before the next game goes live.",
+  },
+  scores: {
+    key: "scores",
+    path: "/scores",
+    pageMode: "scores",
+    sportFilter: "all",
+    statusFilter: "all",
+    title: "Live Scores, Results & Fixtures | Busted Minds Sports",
+    description:
+      "Follow live scores, final results, fixtures, standings, leaders, and match insights across football, basketball, cricket, and tennis.",
+  },
+  football: {
+    key: "football",
+    path: "/football",
+    pageMode: "slate",
+    sportFilter: "football",
+    statusFilter: "all",
+    title: "Football Live Streams, Scores & Fixtures | Busted Minds Sports",
+    description:
+      "Find football live streams, match feeds, scorelines, upcoming fixtures, and league coverage from Busted Minds Sports.",
+  },
+  cricket: {
+    key: "cricket",
+    path: "/cricket",
+    pageMode: "slate",
+    sportFilter: "cricket",
+    statusFilter: "all",
+    title: "Cricket Live Streams, Scores & Fixtures | Busted Minds Sports",
+    description:
+      "Find cricket live streams, match feeds, scores, schedules, and competition coverage from Busted Minds Sports.",
+  },
+};
 
 export default function App() {
+  const initialSeoRoute = useMemo(() => seoRouteFromPath(currentPathname()), []);
   const { matches, loading, error, updatedAt, fromCache, refresh } = useSportsCatalog();
   const {
     matches: scoreMatches,
@@ -93,9 +168,9 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
-  const [sportFilter, setSportFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [pageMode, setPageMode] = useState<PageMode>("home");
+  const [sportFilter, setSportFilter] = useState(initialSeoRoute.sportFilter);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialSeoRoute.statusFilter);
+  const [pageMode, setPageMode] = useState<PageMode>(initialSeoRoute.pageMode);
   const playerSectionRef = useRef<HTMLDivElement | null>(null);
 
   const games = useMemo(
@@ -107,8 +182,10 @@ export default function App() {
       (stats, match) => {
         if (match.status === "live") stats.live += 1;
         if (match.status === "upcoming") stats.upcoming += 1;
-        stats.servers += match.sources.length;
-        stats.primarySources += match.sources.filter((source) => sourceRank(source) < 4).length;
+        if (isStreamSelectable(match)) {
+          stats.servers += match.sources.length;
+          stats.primarySources += match.sources.filter((source) => sourceRank(source) < 4).length;
+        }
         return stats;
       },
       { live: 0, upcoming: 0, servers: 0, primarySources: 0 },
@@ -127,7 +204,7 @@ export default function App() {
         servers: 0,
       };
       current.total += 1;
-      current.servers += match.sources.length;
+      if (isStreamSelectable(match)) current.servers += match.sources.length;
       if (match.status === "live") current.live += 1;
       if (match.status === "upcoming") current.upcoming += 1;
       bySport.set(match.sportKey, current);
@@ -175,7 +252,7 @@ export default function App() {
     return pageGames.filter((match) => matchMatchesSearch(match, normalizedSearch));
   }, [normalizedSearch, pageGames]);
   const liveGames = useMemo(
-    () => games.filter((match) => match.status === "live").slice(0, 6),
+    () => games.filter(isStreamSelectable).slice(0, 6),
     [games],
   );
   const upcomingGames = useMemo(
@@ -183,7 +260,7 @@ export default function App() {
     [games],
   );
   const selectedMatch = useMemo(
-    () => games.find((match) => match.id === selectedId) ?? null,
+    () => games.find((match) => match.id === selectedId && isStreamSelectable(match)) ?? null,
     [games, selectedId],
   );
   const selectedScoreMatch = useMemo(
@@ -201,6 +278,14 @@ export default function App() {
   const mobileMoreActive = livePageActive || scoresPageActive;
   const queueTitle = pageQueueTitle(sportFilter, statusFilter, sportSummaries);
   const pageScope = pageScopeLabel(sportFilter, statusFilter, sportSummaries);
+  const currentSeoRoute = useMemo(
+    () => seoRouteFromState(pageMode, sportFilter, statusFilter),
+    [pageMode, sportFilter, statusFilter],
+  );
+
+  useEffect(() => {
+    applyDocumentSeo(currentSeoRoute);
+  }, [currentSeoRoute]);
 
   useEffect(() => {
     if (!games.length) {
@@ -208,11 +293,13 @@ export default function App() {
       return;
     }
 
-    const selectableGames = filteredGames.length ? filteredGames : pageGames.length ? pageGames : games;
+    const visibleGames = filteredGames.length ? filteredGames : pageGames.length ? pageGames : games;
+    const selectableGames = visibleGames.filter(isStreamSelectable);
     if (selectedId && selectableGames.some((match) => match.id === selectedId)) return;
 
     const nextMatch = pickPreferredMatch(selectableGames, defaultSportKey);
     if (nextMatch) setSelectedId(nextMatch.id);
+    else if (selectedId) setSelectedId("");
   }, [filteredGames, games, pageGames, selectedId]);
 
   useEffect(() => {
@@ -246,6 +333,33 @@ export default function App() {
     setSourceIndex((currentIndex) => (currentIndex + 1) % selectedMatch.sources.length);
   };
 
+  const routeMatchId = (route: SeoRoute) => {
+    if (route.pageMode !== "slate") return "";
+    const routeGames = games.filter((match) => {
+      if (route.sportFilter !== "all" && match.sportKey !== route.sportFilter) return false;
+      if (route.statusFilter !== "all" && match.status !== route.statusFilter) return false;
+      return isStreamSelectable(match);
+    });
+    const preferredSport = route.sportFilter === "all" ? defaultSportKey : route.sportFilter;
+    return pickPreferredMatch(routeGames, preferredSport)?.id ?? "";
+  };
+
+  const applySeoRouteState = (route: SeoRoute) => {
+    setPageMode(route.pageMode);
+    setSearchTerm("");
+    setMobileSearchOpen(false);
+    setMobileMoreOpen(false);
+    setSportFilter(route.sportFilter);
+    setStatusFilter(route.statusFilter);
+    setSelectedId(routeMatchId(route));
+  };
+
+  const openSeoRoute = (routeKey: SeoRouteKey) => {
+    const route = seoRoutes[routeKey];
+    writeBrowserRoute(route, "push");
+    applySeoRouteState(route);
+  };
+
   const clearSearch = () => {
     setSearchTerm("");
     setMobileSearchOpen(false);
@@ -273,47 +387,34 @@ export default function App() {
   };
 
   const openHome = () => {
-    setPageMode("home");
-    setSearchTerm("");
-    setMobileSearchOpen(false);
-    setMobileMoreOpen(false);
-    setSportFilter("all");
-    setStatusFilter("all");
+    openSeoRoute("home");
   };
 
   const openStatusPage = (nextStatus: NavigableStatus) => {
-    const nextMatch = pickPreferredMatch(
-      games.filter((match) => match.status === nextStatus),
-      defaultSportKey,
-    );
-    setPageMode("slate");
-    setSearchTerm("");
-    setMobileSearchOpen(false);
-    setMobileMoreOpen(false);
-    setSportFilter("all");
-    setStatusFilter(nextStatus);
-    setSelectedId(nextMatch?.id ?? "");
+    openSeoRoute(nextStatus === "live" ? "live" : "schedule");
   };
 
   const openScores = () => {
-    setPageMode("scores");
-    setSearchTerm("");
-    setMobileSearchOpen(false);
-    setMobileMoreOpen(false);
-    setSportFilter("all");
-    setStatusFilter("all");
+    openSeoRoute("scores");
   };
 
   const openMatch = (match: Match) => {
+    if (!isStreamSelectable(match)) return;
+
+    writeBrowserRoute(seoRoutes.live, "push");
     setSelectedId(match.id);
+    setSearchTerm("");
     setMobileSearchOpen(false);
     setMobileMoreOpen(false);
-    setStatusFilter(match.status === "upcoming" ? "upcoming" : match.status === "live" ? "live" : "all");
+    setStatusFilter("live");
+    setSportFilter("all");
     setPageMode("slate");
     showPlayerOnMobile();
   };
 
   const selectMatchFromList = (match: Match) => {
+    if (!isStreamSelectable(match)) return;
+
     setSelectedId(match.id);
     showPlayerOnMobile();
   };
@@ -326,18 +427,19 @@ export default function App() {
   };
 
   const openSport = (sportKey: string) => {
-    const nextMatch = pickPreferredMatch(
-      games.filter((match) => match.sportKey === sportKey),
-      sportKey,
-    );
-    setSearchTerm("");
-    setMobileSearchOpen(false);
-    setMobileMoreOpen(false);
-    setSportFilter(sportKey);
-    setStatusFilter("all");
-    setPageMode("slate");
-    setSelectedId(nextMatch?.id ?? "");
+    openSeoRoute(sportKey === "cricket" ? "cricket" : "football");
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handlePopState = () => {
+      applySeoRouteState(seoRouteFromPath(currentPathname()));
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  });
 
   const handleSearchChange = (value: string) => {
     const nextSearchActive = Boolean(value.trim());
@@ -362,6 +464,7 @@ export default function App() {
   };
   const selectedHeaderAccent = selectedMatch ? sportAccent(selectedMatch.sportKey) : "generic";
   const selectedSportIcon = selectedMatch ? sportIconForKey(selectedMatch.sportKey) : "";
+  const playerStatusLabel = selectedMatch?.status === "live" ? "Live" : "No stream";
 
   return (
     <div className={searchActive ? "app-shell is-searching" : "app-shell"}>
@@ -386,12 +489,14 @@ export default function App() {
               <HeaderNavButton
                 icon={HomeNavIcon}
                 label="Home"
+                href={seoRoutes.home.path}
                 active={homePageActive}
                 onClick={openHome}
               />
               <HeaderNavButton
                 icon={LiveNavIcon}
                 label="Live"
+                href={seoRoutes.live.path}
                 count={slateStats.live}
                 active={livePageActive}
                 onClick={() => openStatusPage("live")}
@@ -399,6 +504,7 @@ export default function App() {
               <HeaderNavButton
                 icon={Activity}
                 label="Scores"
+                href={seoRoutes.scores.path}
                 count={scoreMatches.length}
                 active={scoresPageActive}
                 onClick={openScores}
@@ -410,6 +516,7 @@ export default function App() {
                 <HeaderSportButton
                   key={sport.key}
                   sport={sport}
+                  href={sport.key === "cricket" ? seoRoutes.cricket.path : seoRoutes.football.path}
                   active={pageMode === "slate" && statusFilter === "all" && sportFilter === sport.key}
                   onSelect={() => openSport(sport.key)}
                 />
@@ -539,9 +646,9 @@ export default function App() {
                     {selectedMatch?.status === "live" ? (
                       <LiveNavIcon size={14} aria-hidden="true" />
                     ) : (
-                      <NextNavIcon size={14} aria-hidden="true" />
+                      <Server size={14} aria-hidden="true" />
                     )}
-                    {selectedMatch?.status === "live" ? "Live" : "Upcoming"}
+                    {playerStatusLabel}
                   </span>
                   <div className="topline-actions">
                     <span className="source-kind">
@@ -736,7 +843,7 @@ export default function App() {
                       key={match.id}
                       match={match}
                       score={findSportScoreForMatch(match, scoreMatches)}
-                      selected={match.id === selectedId}
+                      selected={isStreamSelectable(match) && match.id === selectedId}
                       onSelect={() => selectMatchFromList(match)}
                     />
                   ))
@@ -783,8 +890,8 @@ export default function App() {
                       key={match.id}
                       match={match}
                       score={findSportScoreForMatch(match, scoreMatches)}
-                      selected={match.id === selectedId}
-                      onSelect={() => setSelectedId(match.id)}
+                      selected={isStreamSelectable(match) && match.id === selectedId}
+                      onSelect={() => selectMatchFromList(match)}
                     />
                   ))
                 ) : (
@@ -812,7 +919,7 @@ export default function App() {
                   state={slateStats.live ? "good" : "neutral"}
                 />
                 <HealthItem
-                  label="Available feeds"
+                  label="Live feeds"
                   value={slateStats.servers.toLocaleString()}
                   state={slateStats.servers ? "good" : "warn"}
                 />
@@ -929,18 +1036,23 @@ export default function App() {
 
 function HeaderSportButton({
   sport,
+  href,
   active,
   onSelect,
 }: {
   sport: HeaderSportSummary;
+  href: string;
   active: boolean;
   onSelect: () => void;
 }) {
   return (
-    <button
-      type="button"
+    <a
+      href={href}
       className={active ? `header-sport is-${sport.accent} is-active` : `header-sport is-${sport.accent}`}
-      onClick={onSelect}
+      onClick={(event) => {
+        event.preventDefault();
+        onSelect();
+      }}
       aria-current={active ? "page" : undefined}
       aria-label={`${sport.label}: ${sport.total} games, ${sport.live} live, ${sport.upcoming} upcoming`}
     >
@@ -954,7 +1066,7 @@ function HeaderSportButton({
         </small>
       </span>
       <span className="header-sport-count">{sport.total}</span>
-    </button>
+    </a>
   );
 }
 
@@ -1152,7 +1264,7 @@ function HomePage({
   const heroMatch = pickPreferredMatch(games, defaultSportKey);
   const heroAccent = heroMatch ? sportAccent(heroMatch.sportKey) : "generic";
   const heroSportIcon = heroMatch ? sportIconForKey(heroMatch.sportKey) : "";
-  const heroFeatureLabel = heroMatch?.status === "live" ? "Featured live match" : "Featured upcoming match";
+  const heroFeatureLabel = "Featured live match";
   const heroSportActions = sportFocusItems.slice(0, 2);
 
   return (
@@ -1174,18 +1286,25 @@ function HomePage({
             <p>Pick a sport, jump into a live stream, and keep scores close.</p>
           </div>
           <div className="home-hero-sport-actions">
-            {heroSportActions.map((sport) => (
-              <button
-                key={sport.key}
-                type="button"
-                aria-label={`Watch ${sport.label}`}
-                className={`home-hero-sport-action is-${sport.accent}`}
-                onClick={() => onSelectSport(sport.key)}
-              >
-                <img src={sport.iconSrc} alt="" loading="lazy" decoding="async" draggable="false" />
-                <span>Watch {sport.label}</span>
-              </button>
-            ))}
+            {heroSportActions.map((sport) => {
+              const sportHref = sport.key === "cricket" ? seoRoutes.cricket.path : seoRoutes.football.path;
+
+              return (
+                <a
+                  key={sport.key}
+                  href={sportHref}
+                  aria-label={`Watch ${sport.label}`}
+                  className={`home-hero-sport-action is-${sport.accent}`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    onSelectSport(sport.key);
+                  }}
+                >
+                  <img src={sport.iconSrc} alt="" loading="lazy" decoding="async" draggable="false" />
+                  <span>Watch {sport.label}</span>
+                </a>
+              );
+            })}
           </div>
         </div>
         {heroMatch ? (
@@ -1224,7 +1343,7 @@ function HomePage({
             </span>
             <span className="home-feature-meta">
               <span>{heroMatch.league}</span>
-              <span>{heroMatch.sources.length} feeds</span>
+              <span>{matchStreamMeta(heroMatch)}</span>
               <ChevronRight size={17} aria-hidden="true" />
             </span>
           </button>
@@ -1234,7 +1353,7 @@ function HomePage({
       <section className="home-summary-strip" aria-label="Slate summary">
         <SummaryMetric icon={LiveNavIcon} label="Live now" value={slateStats.live.toLocaleString()} />
         <SummaryMetric icon={NextNavIcon} label="Up next" value={slateStats.upcoming.toLocaleString()} />
-        <SummaryMetric icon={ShieldCheck} label="Feeds" value={slateStats.servers.toLocaleString()} />
+        <SummaryMetric icon={ShieldCheck} label="Live feeds" value={slateStats.servers.toLocaleString()} />
         <SummaryMetric icon={Activity} label="Scores" value={scoreMatches.length.toLocaleString()} />
       </section>
 
@@ -1245,10 +1364,17 @@ function HomePage({
               <span className="eyebrow">On air</span>
               <h2>Live Matches</h2>
             </div>
-            <button type="button" className="home-panel-action" onClick={() => onOpenStatus("live")}>
+            <a
+              href={seoRoutes.live.path}
+              className="home-panel-action"
+              onClick={(event) => {
+                event.preventDefault();
+                onOpenStatus("live");
+              }}
+            >
               <LiveNavIcon size={15} aria-hidden="true" />
               <span>{slateStats.live}</span>
-            </button>
+            </a>
           </div>
           <div className="home-match-grid">
             {loading && games.length === 0 ? (
@@ -1275,10 +1401,17 @@ function HomePage({
               <span className="eyebrow">Schedule</span>
               <h2>Coming Up</h2>
             </div>
-            <button type="button" className="home-panel-action" onClick={() => onOpenStatus("upcoming")}>
+            <a
+              href={seoRoutes.schedule.path}
+              className="home-panel-action"
+              onClick={(event) => {
+                event.preventDefault();
+                onOpenStatus("upcoming");
+              }}
+            >
               <NextNavIcon size={15} aria-hidden="true" />
               <span>{slateStats.upcoming}</span>
-            </button>
+            </a>
           </div>
           <div className="schedule-list home-schedule-list">
             {loading && games.length === 0 ? (
@@ -2491,7 +2624,7 @@ function HomeSportCard({
         </span>
         <span className="home-sport-copy">
           <strong>{sport.label}</strong>
-          <small>{sport.servers.toLocaleString()} feeds</small>
+          <small>{sport.servers.toLocaleString()} live feeds</small>
         </span>
       </span>
       <span className="home-sport-metrics">
@@ -2561,15 +2694,18 @@ function MatchCard({
   const hasPoster = Boolean(match.poster);
   const cardStyle = matchCardBackgroundStyle(match, sportIcon);
   const scoreLine = score ? sportScoreLine(score) : "";
-  const showTrailingMeta = !score || scoreLine.trim().toLowerCase() !== "vs";
+  const selectable = isStreamSelectable(match);
+  const showTrailingMeta = !selectable || !score || scoreLine.trim().toLowerCase() !== "vs";
 
   return (
     <button
       type="button"
-      className={`match-card is-${match.status} is-${accent}${hasPoster ? " has-poster" : ""}${selected ? " is-selected" : ""}`}
-      onClick={onSelect}
-      aria-pressed={selected}
+      className={`match-card is-${match.status} is-${accent}${hasPoster ? " has-poster" : ""}${selected ? " is-selected" : ""}${selectable ? "" : " is-unavailable"}`}
+      onClick={selectable ? onSelect : undefined}
+      aria-pressed={selectable ? selected : undefined}
+      aria-disabled={!selectable}
       style={cardStyle}
+      title={selectable ? undefined : "Stream unlocks when this match is live"}
     >
       <span className="match-card-body">
         <span className="match-card-top">
@@ -2622,7 +2758,7 @@ function MatchCard({
 
         <span className="match-card-meta">
           <small>{match.sportLabel} · {score?.competition || match.league}</small>
-          {showTrailingMeta ? <small>{score ? scoreLine : `${match.sources.length} feeds`}</small> : null}
+          {showTrailingMeta ? <small>{selectable && score ? scoreLine : matchStreamMeta(match)}</small> : null}
         </span>
       </span>
     </button>
@@ -2660,21 +2796,26 @@ function cssUrlValue(value: string) {
 function HeaderNavButton({
   icon: Icon,
   label,
+  href,
   count,
   active,
   onClick,
 }: {
   icon?: AppIcon;
   label: string;
+  href: string;
   count?: number;
   active: boolean;
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
+    <a
+      href={href}
       className={active ? "header-nav-button is-active" : "header-nav-button"}
-      onClick={onClick}
+      onClick={(event) => {
+        event.preventDefault();
+        onClick();
+      }}
       aria-current={active ? "page" : undefined}
     >
       <span className="header-nav-button-label">
@@ -2686,7 +2827,7 @@ function HeaderNavButton({
         <span>{label}</span>
       </span>
       {typeof count === "number" ? <small>{count}</small> : null}
-    </button>
+    </a>
   );
 }
 
@@ -2703,13 +2844,16 @@ function ScheduleRow({
 }) {
   const accent = sportAccent(match.sportKey);
   const sportIcon = sportIconForKey(match.sportKey);
+  const selectable = isStreamSelectable(match);
 
   return (
     <button
       type="button"
-      className={selected ? "schedule-row is-selected" : "schedule-row"}
-      onClick={onSelect}
-      aria-pressed={selected}
+      className={`schedule-row${selected ? " is-selected" : ""}${selectable ? "" : " is-unavailable"}`}
+      onClick={selectable ? onSelect : undefined}
+      aria-pressed={selectable ? selected : undefined}
+      aria-disabled={!selectable}
+      title={selectable ? undefined : "Stream unlocks when this match is live"}
     >
       <span className="date-box">
         <strong>{match.dateLabel || "Today"}</strong>
@@ -2725,10 +2869,12 @@ function ScheduleRow({
       <span className="schedule-copy">
         <strong>{matchTitle(match)}</strong>
         <small>
-          {score ? `${sportScoreLine(score)} / ${score.statusText}` : `${match.league} / ${match.sources.length} feeds`}
+          {selectable && score
+            ? `${sportScoreLine(score)} / ${score.statusText}`
+            : `${match.league} / ${matchStreamMeta(match)}`}
         </small>
       </span>
-      <ChevronRight size={18} aria-hidden="true" />
+      {selectable ? <ChevronRight size={18} aria-hidden="true" /> : <Clock3 size={18} aria-hidden="true" />}
     </button>
   );
 }
@@ -2792,23 +2938,96 @@ function LoadingRows() {
 }
 
 function pickPreferredMatch(matches: Match[], preferredSportKey: string) {
-  const preferredSportMatches = matches.filter((match) => match.sportKey === preferredSportKey);
+  const playableMatches = matches.filter(isStreamSelectable);
+  const preferredSportMatches = playableMatches.filter((match) => match.sportKey === preferredSportKey);
 
   return (
     preferredSportMatches.find(
       (match) => match.status === "live" && match.sources.some((source) => sourceRank(source) === 0),
     ) ??
     preferredSportMatches.find((match) => match.status === "live" && match.sources.length > 0) ??
-    preferredSportMatches.find((match) => match.sources.length > 0) ??
-    preferredSportMatches[0] ??
-    matches.find(
+    playableMatches.find(
       (match) => match.status === "live" && match.sources.some((source) => sourceRank(source) === 0),
     ) ??
-    matches.find((match) => match.status === "live" && match.sources.length > 0) ??
-    matches.find((match) => match.sources.length > 0) ??
-    matches[0] ??
+    playableMatches.find((match) => match.status === "live" && match.sources.length > 0) ??
     null
   );
+}
+
+function currentPathname() {
+  return typeof window === "undefined" ? "/" : window.location.pathname;
+}
+
+function seoRouteFromPath(pathname: string): SeoRoute {
+  const normalizedPath = pathname.toLowerCase().replace(/\/+$/, "") || "/";
+  return (
+    Object.values(seoRoutes).find((route) => route.path === normalizedPath) ??
+    seoRoutes.home
+  );
+}
+
+function seoRouteFromState(
+  pageMode: PageMode,
+  sportFilter: string,
+  statusFilter: StatusFilter,
+): SeoRoute {
+  if (pageMode === "scores") return seoRoutes.scores;
+  if (pageMode === "home") return seoRoutes.home;
+  if (sportFilter === "football") return seoRoutes.football;
+  if (sportFilter === "cricket") return seoRoutes.cricket;
+  if (statusFilter === "live") return seoRoutes.live;
+  if (statusFilter === "upcoming") return seoRoutes.schedule;
+  return seoRoutes.home;
+}
+
+function writeBrowserRoute(route: SeoRoute, mode: "push" | "replace") {
+  if (typeof window === "undefined") return;
+  if (mode === "push" && window.location.pathname === route.path) return;
+
+  const state = { route: route.key };
+  if (mode === "replace") {
+    window.history.replaceState(state, "", route.path);
+  } else {
+    window.history.pushState(state, "", route.path);
+  }
+}
+
+function applyDocumentSeo(route: SeoRoute) {
+  if (typeof document === "undefined") return;
+
+  const url = canonicalUrl(route.path);
+  document.title = route.title;
+  setLinkHref('link[rel="canonical"]', { rel: "canonical" }, url);
+  setMetaContent('meta[name="description"]', { name: "description" }, route.description);
+  setMetaContent('meta[property="og:title"]', { property: "og:title" }, route.title);
+  setMetaContent('meta[property="og:description"]', { property: "og:description" }, route.description);
+  setMetaContent('meta[property="og:url"]', { property: "og:url" }, url);
+  setMetaContent('meta[name="twitter:title"]', { name: "twitter:title" }, route.title);
+  setMetaContent('meta[name="twitter:description"]', { name: "twitter:description" }, route.description);
+}
+
+function canonicalUrl(path: string) {
+  return new URL(path, siteBaseUrl).toString();
+}
+
+function setMetaContent(selector: string, attributes: Record<string, string>, content: string) {
+  let meta = document.head.querySelector<HTMLMetaElement>(selector);
+  if (!meta) {
+    meta = document.createElement("meta");
+    Object.entries(attributes).forEach(([name, value]) => meta?.setAttribute(name, value));
+    document.head.append(meta);
+  }
+  meta.setAttribute("content", content);
+}
+
+function setLinkHref(selector: string, attributes: Record<string, string>, href: string) {
+  let link = document.head.querySelector<HTMLLinkElement>(selector);
+  if (!link) {
+    link = document.createElement("link");
+    Object.entries(attributes).forEach(([name, value]) => link?.setAttribute(name, value));
+    document.head.append(link);
+  }
+  link.setAttribute("href", href);
 }
 
 function preferredSourceIndex(match: Match) {
@@ -2920,6 +3139,15 @@ function formatSportKey(value: string) {
 
 function matchTitle(match: Match) {
   return match.awayTeam ? `${match.homeTeam} vs ${match.awayTeam}` : match.homeTeam;
+}
+
+function isStreamSelectable(match: Match) {
+  return match.status === "live" && match.sources.length > 0;
+}
+
+function matchStreamMeta(match: Match) {
+  if (!isStreamSelectable(match)) return "Not live yet";
+  return `${match.sources.length} live ${match.sources.length === 1 ? "feed" : "feeds"}`;
 }
 
 function initials(value: string) {

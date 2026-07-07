@@ -205,10 +205,12 @@ export function normalizeCatalog(payload: DamiCatalog): Match[] {
       const sportKey = normalizeSportKey(category);
       if (!isAllowedStreamSport(sportKey)) continue;
 
-      const sourceInputs = normalizeSourceInputs(stream);
-      const sources = sourceInputs
-        .map((source, index) => normalizeSource(source, `${category}-${apiId}-${index}`, index))
-        .filter((source): source is StreamSource => source !== null && isAvailableSource(source));
+      const sources =
+        status === "live"
+          ? normalizeSourceInputs(stream)
+              .map((source, index) => normalizeSource(source, `${category}-${apiId}-${index}`, index))
+              .filter((source): source is StreamSource => source !== null && isAvailableSource(source))
+          : [];
 
       matches.push({
         id: `${category}:${apiId}`,
@@ -384,7 +386,7 @@ function normalizeDbMatch(
     timeLabel: startsAt ? formatTime(startsAt) : asText(row.match_time),
     dateLabel: startsAt ? formatDate(startsAt) : asText(row.match_date),
     viewers: normalizeViewers(undefined, `db:${rawId}:${homeTeam}`),
-    sources: mergeSources(matchSources, sportSources),
+    sources: status === "live" ? mergeSources(matchSources, sportSources) : [],
   };
 }
 
@@ -458,7 +460,7 @@ function filterAvailableMatches(matches: Match[]) {
       ...match,
       sources: match.sources.filter(isAvailableSource),
     }))
-    .filter((match) => match.sources.length > 0);
+    .filter((match) => match.status === "upcoming" || match.sources.length > 0);
 }
 
 function isAvailableSource(source: StreamSource) {

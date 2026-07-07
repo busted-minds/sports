@@ -1,0 +1,24 @@
+{
+  "rewrites": [
+    {
+      "source": "/live",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/schedule",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/scores",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/football",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/cricket",
+      "destination": "/index.html"
+    }
+  ]
+}
