@@ -497,7 +497,6 @@ export default function App() {
                 icon={LiveNavIcon}
                 label="Live"
                 href={seoRoutes.live.path}
-                count={slateStats.live}
                 active={livePageActive}
                 onClick={() => openStatusPage("live")}
               />
@@ -505,7 +504,6 @@ export default function App() {
                 icon={Activity}
                 label="Scores"
                 href={seoRoutes.scores.path}
-                count={scoreMatches.length}
                 active={scoresPageActive}
                 onClick={openScores}
               />
@@ -1054,18 +1052,13 @@ function HeaderSportButton({
         onSelect();
       }}
       aria-current={active ? "page" : undefined}
-      aria-label={`${sport.label}: ${sport.total} games, ${sport.live} live, ${sport.upcoming} upcoming`}
     >
       <span className="header-sport-icon">
         <img src={sport.iconSrc} alt="" decoding="async" draggable="false" />
       </span>
       <span className="header-sport-copy">
         <strong>{sport.label}</strong>
-        <small>
-          {sport.live} live · {sport.upcoming} next
-        </small>
       </span>
-      <span className="header-sport-count">{sport.total}</span>
     </a>
   );
 }
@@ -1707,7 +1700,6 @@ function ScoreboardPanel({
     <section className="score-panel" aria-label="Scoreboard">
       <div className="panel-heading score-panel-heading">
         <div className="score-title-block">
-          <span className="eyebrow">Results</span>
           <h2>Matches</h2>
           <p>{filterSummary}</p>
         </div>
@@ -2368,7 +2360,7 @@ function LeaderList({
             <div className="leader-row" key={`${title}-${leader.rank}-${leader.player}`}>
               <span>{leader.rank ?? "-"}</span>
               <TeamMark badge={leader.playerLogo || leader.teamLogo} name={leader.player} accent="generic" size="small" />
-              <span>
+              <span className="leader-copy">
                 <strong>{leader.player}</strong>
                 <small>{leader.team}</small>
               </span>
@@ -2797,14 +2789,12 @@ function HeaderNavButton({
   icon: Icon,
   label,
   href,
-  count,
   active,
   onClick,
 }: {
   icon?: AppIcon;
   label: string;
   href: string;
-  count?: number;
   active: boolean;
   onClick: () => void;
 }) {
@@ -2826,7 +2816,6 @@ function HeaderNavButton({
         ) : null}
         <span>{label}</span>
       </span>
-      {typeof count === "number" ? <small>{count}</small> : null}
     </a>
   );
 }
