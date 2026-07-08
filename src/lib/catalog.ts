@@ -96,7 +96,7 @@ type DbMatch = {
 
 const mediaParams = ["url", "src", "source", "stream", "file", "link", "u"];
 const directMediaPattern = /\.(m3u8|mpd|mp4|webm|m4v|mov)(\?|$)/i;
-const allowedStreamSports = new Set(["football", "cricket"]);
+const allowedStreamSports = new Set(["football", "baseball", "basketball", "fight", "cricket"]);
 const fallbackServers: Record<string, Array<{ name: string; url: string }>> = {
   football: [
     { name: "Telemundo", url: "https://telemundo.vercel.app/" },
@@ -314,7 +314,7 @@ function groupDbServers(dbServers: DbServer[]) {
     };
     if (!isAvailableSource(source)) continue;
 
-    if (sportKey === "football" || sportKey === "cricket") {
+    if (isAllowedStreamSport(sportKey)) {
       grouped.bySport[sportKey] = grouped.bySport[sportKey] ?? [];
       grouped.bySport[sportKey].push(source);
     }
@@ -363,8 +363,7 @@ function normalizeDbMatch(
 
   const homeTeam = asText(row.team_a, "Match");
   const awayTeam = asText(row.team_b);
-  const sportSources =
-    sportKey === "football" || sportKey === "cricket" ? groupedServers.bySport[sportKey] ?? [] : [];
+  const sportSources = groupedServers.bySport[sportKey] ?? [];
   const matchSources = groupedServers.byMatchId[rawId] ?? [];
   const startsAt = parseDbSchedule(asText(row.match_date), asText(row.match_time));
 

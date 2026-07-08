@@ -4,7 +4,6 @@ import {
   CalendarDays,
   ChevronRight,
   Clock3,
-  Ellipsis,
   ExternalLink,
   RefreshCw,
   Search,
@@ -14,7 +13,7 @@ import {
   WifiOff,
   X,
 } from "lucide-react";
-import type { ComponentType, CSSProperties, Dispatch, SetStateAction } from "react";
+import type { ComponentType, CSSProperties, Dispatch, RefObject, SetStateAction } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Player } from "./components/Player";
 import { useSportScore, useSportScoreInsight, type SportScoreInsight } from "./hooks/useSportScore";
@@ -39,6 +38,9 @@ import {
 const parentLogoUrl = "/Busted-Minds-Logo.png";
 const sportsLogoUrl = "/busted-minds-sports-logo.png";
 const footballIconUrl = "/icons/sport-football.png";
+const baseballIconUrl = "/icons/sport-baseball.png";
+const basketballIconUrl = "/icons/sport-basketball.png";
+const fightIconUrl = "/icons/sport-fight.png";
 const cricketIconUrl = "/icons/sport-cricket.png";
 const genericSportIconUrl = "/icons/sport-generic.png";
 const homeThumbnailUrl = "/home-thumbnail.png";
@@ -52,11 +54,11 @@ const lowerPriorityHosts = [
 ];
 const lowerPrioritySourceNames = ["fancode"];
 const defaultSportKey = "football";
-const featuredSportKeys = ["football", "cricket"];
+const featuredSportKeys = ["football", "baseball", "basketball", "fight", "cricket"];
 type PageMode = "home" | "slate" | "scores";
 type StatusFilter = "all" | "live" | "upcoming";
 type NavigableStatus = Extract<StatusFilter, "live" | "upcoming">;
-type SearchScopeKey = "all" | "live" | "upcoming" | "football" | "cricket";
+type SearchScopeKey = "all" | "live" | "upcoming" | "football" | "baseball" | "basketball" | "fight" | "cricket";
 type SlateStats = {
   live: number;
   upcoming: number;
@@ -77,7 +79,7 @@ type AppIcon = ComponentType<{
   "aria-hidden"?: boolean | "true" | "false";
 }>;
 type HeaderSportSummary = SportSummary & { iconSrc: string; accent: string };
-type SeoRouteKey = "home" | "live" | "schedule" | "scores" | "football" | "cricket";
+type SeoRouteKey = "home" | "live" | "schedule" | "scores" | "football" | "baseball" | "basketball" | "fight" | "cricket";
 type SeoRoute = {
   key: SeoRouteKey;
   path: string;
@@ -98,7 +100,7 @@ const seoRoutes: Record<SeoRouteKey, SeoRoute> = {
     statusFilter: "all",
     title: "Live Sports Streams, Scores & Match Schedule | Busted Minds Sports",
     description:
-      "Busted Minds Sports brings live football and cricket streams, match schedules, live scores, and multi-feed game coverage into one fast sports hub.",
+      "Busted Minds Sports brings live football, baseball, basketball, fight and cricket streams, match schedules, live scores, and multi-feed game coverage into one fast sports hub.",
   },
   live: {
     key: "live",
@@ -108,7 +110,7 @@ const seoRoutes: Record<SeoRouteKey, SeoRoute> = {
     statusFilter: "live",
     title: "Live Sports Streams Today | Busted Minds Sports",
     description:
-      "Watch live football and cricket streams with available feeds, game status, stream health signals, and quick access to live match coverage.",
+      "Watch live football, baseball, basketball, fight and cricket streams with available feeds, game status, stream health signals, and quick access to live match coverage.",
   },
   schedule: {
     key: "schedule",
@@ -118,7 +120,7 @@ const seoRoutes: Record<SeoRouteKey, SeoRoute> = {
     statusFilter: "upcoming",
     title: "Sports Match Schedule & Upcoming Games | Busted Minds Sports",
     description:
-      "See upcoming football and cricket fixtures, match times, and leagues before the next game goes live.",
+      "See upcoming football, baseball, basketball, fight and cricket fixtures, match times, and leagues before the next game goes live.",
   },
   scores: {
     key: "scores",
@@ -139,6 +141,36 @@ const seoRoutes: Record<SeoRouteKey, SeoRoute> = {
     title: "Football Live Streams, Scores & Fixtures | Busted Minds Sports",
     description:
       "Find football live streams, match feeds, scorelines, upcoming fixtures, and league coverage from Busted Minds Sports.",
+  },
+  baseball: {
+    key: "baseball",
+    path: "/baseball",
+    pageMode: "slate",
+    sportFilter: "baseball",
+    statusFilter: "all",
+    title: "Baseball Live Streams & MLB Fixtures | Busted Minds Sports",
+    description:
+      "Find baseball live streams, MLB match feeds, upcoming fixtures, and available game coverage from Busted Minds Sports.",
+  },
+  basketball: {
+    key: "basketball",
+    path: "/basketball",
+    pageMode: "slate",
+    sportFilter: "basketball",
+    statusFilter: "all",
+    title: "Basketball Live Streams, NBA & WNBA Fixtures | Busted Minds Sports",
+    description:
+      "Find basketball live streams, NBA and WNBA match feeds, upcoming fixtures, and available game coverage from Busted Minds Sports.",
+  },
+  fight: {
+    key: "fight",
+    path: "/fight",
+    pageMode: "slate",
+    sportFilter: "fight",
+    statusFilter: "all",
+    title: "Fight Live Streams, WWE & AEW Schedule | Busted Minds Sports",
+    description:
+      "Find fight live streams, WWE, AEW and wrestling match feeds, upcoming events, and available coverage from Busted Minds Sports.",
   },
   cricket: {
     key: "cricket",
@@ -168,10 +200,12 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  const [sportsMenuOpen, setSportsMenuOpen] = useState(false);
   const [sportFilter, setSportFilter] = useState(initialSeoRoute.sportFilter);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialSeoRoute.statusFilter);
   const [pageMode, setPageMode] = useState<PageMode>(initialSeoRoute.pageMode);
   const playerSectionRef = useRef<HTMLDivElement | null>(null);
+  const sportsMenuRef = useRef<HTMLDivElement | null>(null);
 
   const games = useMemo(
     () => matches.filter((match) => match.status === "live" || match.status === "upcoming"),
@@ -226,6 +260,21 @@ export default function App() {
         accent: "football",
       },
       {
+        ...sportSummaryOrFallback("baseball", "Baseball", sportSummaries),
+        iconSrc: baseballIconUrl,
+        accent: "baseball",
+      },
+      {
+        ...sportSummaryOrFallback("basketball", "Basketball", sportSummaries),
+        iconSrc: basketballIconUrl,
+        accent: "basketball",
+      },
+      {
+        ...sportSummaryOrFallback("fight", "Fight", sportSummaries),
+        iconSrc: fightIconUrl,
+        accent: "fight",
+      },
+      {
         ...sportSummaryOrFallback("cricket", "Cricket", sportSummaries),
         iconSrc: cricketIconUrl,
         accent: "cricket",
@@ -263,6 +312,21 @@ export default function App() {
     () => games.find((match) => match.id === selectedId && isStreamSelectable(match)) ?? null,
     [games, selectedId],
   );
+  const orderedFilteredGames = useMemo(() => {
+    if (!selectedMatch) return filteredGames;
+
+    const selectedIndex = filteredGames.findIndex((match) => match.id === selectedMatch.id);
+    if (selectedIndex <= 0) return filteredGames;
+
+    const selectedGame = filteredGames[selectedIndex];
+    if (!selectedGame) return filteredGames;
+
+    return [
+      selectedGame,
+      ...filteredGames.slice(0, selectedIndex),
+      ...filteredGames.slice(selectedIndex + 1),
+    ];
+  }, [filteredGames, selectedMatch]);
   const selectedScoreMatch = useMemo(
     () => findSportScoreForMatch(selectedMatch, scoreMatches),
     [scoreMatches, selectedMatch],
@@ -273,15 +337,37 @@ export default function App() {
   const homePageActive = pageMode === "home";
   const livePageActive = pageMode === "slate" && sportFilter === "all" && statusFilter === "live";
   const scoresPageActive = pageMode === "scores";
-  const footballPageActive = pageMode === "slate" && statusFilter === "all" && sportFilter === "football";
-  const cricketPageActive = pageMode === "slate" && statusFilter === "all" && sportFilter === "cricket";
-  const mobileMoreActive = livePageActive || scoresPageActive;
+  const sportsPageActive = pageMode === "slate" && statusFilter === "all" && featuredSportKeys.includes(sportFilter);
+  const activeSportSummary = sportsPageActive
+    ? sportFocusItems.find((sport) => sport.key === sportFilter) ?? null
+    : null;
+  const mobileMoreActive = sportsPageActive;
   const queueTitle = pageQueueTitle(sportFilter, statusFilter, sportSummaries);
   const pageScope = pageScopeLabel(sportFilter, statusFilter, sportSummaries);
   const currentSeoRoute = useMemo(
     () => seoRouteFromState(pageMode, sportFilter, statusFilter),
     [pageMode, sportFilter, statusFilter],
   );
+
+  useEffect(() => {
+    if (!sportsMenuOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (!sportsMenuRef.current?.contains(target)) setSportsMenuOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSportsMenuOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [sportsMenuOpen]);
 
   useEffect(() => {
     applyDocumentSeo(currentSeoRoute);
@@ -293,14 +379,14 @@ export default function App() {
       return;
     }
 
-    const visibleGames = filteredGames.length ? filteredGames : pageGames.length ? pageGames : games;
+    const visibleGames = searchActive ? games : pageGames.length ? pageGames : games;
     const selectableGames = visibleGames.filter(isStreamSelectable);
     if (selectedId && selectableGames.some((match) => match.id === selectedId)) return;
 
     const nextMatch = pickPreferredMatch(selectableGames, defaultSportKey);
     if (nextMatch) setSelectedId(nextMatch.id);
     else if (selectedId) setSelectedId("");
-  }, [filteredGames, games, pageGames, selectedId]);
+  }, [games, pageGames, searchActive, selectedId]);
 
   useEffect(() => {
     if (sportFilter === "all") return;
@@ -349,6 +435,7 @@ export default function App() {
     setSearchTerm("");
     setMobileSearchOpen(false);
     setMobileMoreOpen(false);
+    setSportsMenuOpen(false);
     setSportFilter(route.sportFilter);
     setStatusFilter(route.statusFilter);
     setSelectedId(routeMatchId(route));
@@ -364,11 +451,13 @@ export default function App() {
     setSearchTerm("");
     setMobileSearchOpen(false);
     setMobileMoreOpen(false);
+    setSportsMenuOpen(false);
   };
 
   const applySearchScope = (scope: SearchScopeKey) => {
     setPageMode("slate");
     setMobileMoreOpen(false);
+    setSportsMenuOpen(false);
 
     if (scope === "all") {
       setSportFilter("all");
@@ -406,6 +495,7 @@ export default function App() {
     setSearchTerm("");
     setMobileSearchOpen(false);
     setMobileMoreOpen(false);
+    setSportsMenuOpen(false);
     setStatusFilter("live");
     setSportFilter("all");
     setPageMode("slate");
@@ -427,7 +517,7 @@ export default function App() {
   };
 
   const openSport = (sportKey: string) => {
-    openSeoRoute(sportKey === "cricket" ? "cricket" : "football");
+    openSeoRoute(sportRouteForKey(sportKey).key);
   };
 
   useEffect(() => {
@@ -448,6 +538,7 @@ export default function App() {
     if (nextSearchActive) {
       setPageMode("slate");
       setMobileMoreOpen(false);
+      setSportsMenuOpen(false);
       if (!wasSearchActive) {
         setSportFilter("all");
         setStatusFilter("all");
@@ -456,11 +547,18 @@ export default function App() {
   };
   const toggleMobileSearch = () => {
     setMobileMoreOpen(false);
+    setSportsMenuOpen(false);
     setMobileSearchOpen((isOpen) => !isOpen);
   };
   const toggleMobileMore = () => {
     setMobileSearchOpen(false);
+    setSportsMenuOpen(false);
     setMobileMoreOpen((isOpen) => !isOpen);
+  };
+  const toggleSportsMenu = () => {
+    setMobileSearchOpen(false);
+    setMobileMoreOpen(false);
+    setSportsMenuOpen((isOpen) => !isOpen);
   };
   const selectedHeaderAccent = selectedMatch ? sportAccent(selectedMatch.sportKey) : "generic";
   const selectedSportIcon = selectedMatch ? sportIconForKey(selectedMatch.sportKey) : "";
@@ -509,17 +607,15 @@ export default function App() {
               />
             </div>
 
-            <div className="header-sport-strip" role="group" aria-label="Primary sport pages">
-              {sportFocusItems.map((sport) => (
-                <HeaderSportButton
-                  key={sport.key}
-                  sport={sport}
-                  href={sport.key === "cricket" ? seoRoutes.cricket.path : seoRoutes.football.path}
-                  active={pageMode === "slate" && statusFilter === "all" && sportFilter === sport.key}
-                  onSelect={() => openSport(sport.key)}
-                />
-              ))}
-            </div>
+            <HeaderSportsMenu
+              sports={sportFocusItems}
+              activeSportKey={sportsPageActive ? sportFilter : ""}
+              activeSport={activeSportSummary}
+              open={sportsMenuOpen}
+              menuRef={sportsMenuRef}
+              onToggle={toggleSportsMenu}
+              onSelect={openSport}
+            />
           </div>
 
           <label className="search-box header-search">
@@ -693,11 +789,7 @@ export default function App() {
                       <strong className={selectedScoreMatch ? "match-scoreline" : undefined}>
                         {selectedScoreMatch ? sportScoreLine(selectedScoreMatch) : selectedMatch.awayTeam ? "VS" : "ON AIR"}
                       </strong>
-                      <small>
-                        {selectedScoreMatch
-                          ? `${selectedScoreMatch.statusText} / ${selectedScoreMatch.competition}`
-                          : selectedMatch.league}
-                      </small>
+                      <small>{compactCompetitionLabel(selectedScoreMatch?.competition || selectedMatch.league)}</small>
                     </div>
                     {selectedMatch.awayTeam ? (
                       <div className="match-side is-away">
@@ -819,6 +911,24 @@ export default function App() {
                       onClick={() => applySearchScope("football")}
                     />
                     <SearchScopeButton
+                      label="Baseball"
+                      count={searchStats.baseball}
+                      active={sportFilter === "baseball" && statusFilter === "all"}
+                      onClick={() => applySearchScope("baseball")}
+                    />
+                    <SearchScopeButton
+                      label="Basketball"
+                      count={searchStats.basketball}
+                      active={sportFilter === "basketball" && statusFilter === "all"}
+                      onClick={() => applySearchScope("basketball")}
+                    />
+                    <SearchScopeButton
+                      label="Fight"
+                      count={searchStats.fight}
+                      active={sportFilter === "fight" && statusFilter === "all"}
+                      onClick={() => applySearchScope("fight")}
+                    />
+                    <SearchScopeButton
                       label="Cricket"
                       count={searchStats.cricket}
                       active={sportFilter === "cricket" && statusFilter === "all"}
@@ -835,8 +945,8 @@ export default function App() {
               <div className="match-list">
                 {loading && games.length === 0 ? (
                   <LoadingRows />
-                ) : filteredGames.length ? (
-                  filteredGames.map((match) => (
+                ) : orderedFilteredGames.length ? (
+                  orderedFilteredGames.map((match) => (
                     <MatchCard
                       key={match.id}
                       match={match}
@@ -946,27 +1056,24 @@ export default function App() {
 
       <nav className="mobile-tabbar" aria-label="Quick navigation">
         {mobileMoreOpen ? (
-          <div id="mobile-more-menu" className="mobile-more-menu" aria-label="More navigation">
-            <button
-              type="button"
-              className={livePageActive ? "mobile-more-action is-active" : "mobile-more-action"}
-              onClick={() => openStatusPage("live")}
-              aria-current={livePageActive ? "page" : undefined}
-            >
-              <LiveNavIcon size={18} aria-hidden="true" />
-              <span>Live</span>
-              <small>{slateStats.live}</small>
-            </button>
-            <button
-              type="button"
-              className={scoresPageActive ? "mobile-more-action is-active" : "mobile-more-action"}
-              onClick={openScores}
-              aria-current={scoresPageActive ? "page" : undefined}
-            >
-              <Activity size={18} aria-hidden="true" />
-              <span>Scores</span>
-              <small>{scoreMatches.length}</small>
-            </button>
+          <div id="mobile-more-menu" className="mobile-more-menu is-sports" aria-label="Sports navigation">
+            {sportFocusItems.map((sport) => {
+              const sportActive = sportsPageActive && sportFilter === sport.key;
+
+              return (
+                <button
+                  key={sport.key}
+                  type="button"
+                  className={sportActive ? "mobile-more-action is-active" : "mobile-more-action"}
+                  onClick={() => openSport(sport.key)}
+                  aria-current={sportActive ? "page" : undefined}
+                >
+                  <img src={sport.iconSrc} alt="" loading="lazy" decoding="async" draggable="false" />
+                  <span>{sport.label}</span>
+                  <small>{sport.total}</small>
+                </button>
+              );
+            })}
           </div>
         ) : null}
         <button
@@ -980,21 +1087,21 @@ export default function App() {
         </button>
         <button
           type="button"
-          className={footballPageActive ? "mobile-tabbar-button is-active" : "mobile-tabbar-button"}
-          onClick={() => openSport("football")}
-          aria-current={footballPageActive ? "page" : undefined}
+          className={livePageActive ? "mobile-tabbar-button is-active" : "mobile-tabbar-button"}
+          onClick={() => openStatusPage("live")}
+          aria-current={livePageActive ? "page" : undefined}
         >
-          <img src={footballIconUrl} alt="" aria-hidden="true" />
-          <span>Football</span>
+          <LiveNavIcon size={18} aria-hidden="true" />
+          <span>Live</span>
         </button>
         <button
           type="button"
-          className={cricketPageActive ? "mobile-tabbar-button is-active" : "mobile-tabbar-button"}
-          onClick={() => openSport("cricket")}
-          aria-current={cricketPageActive ? "page" : undefined}
+          className={scoresPageActive ? "mobile-tabbar-button is-active" : "mobile-tabbar-button"}
+          onClick={openScores}
+          aria-current={scoresPageActive ? "page" : undefined}
         >
-          <img src={cricketIconUrl} alt="" aria-hidden="true" />
-          <span>Cricket</span>
+          <Activity size={18} aria-hidden="true" />
+          <span>Scores</span>
         </button>
         <button
           type="button"
@@ -1009,9 +1116,10 @@ export default function App() {
           aria-expanded={mobileMoreOpen}
           aria-controls="mobile-more-menu"
           aria-current={mobileMoreActive ? "page" : undefined}
+          aria-label={activeSportSummary ? `Sports, ${activeSportSummary.label} selected` : "Sports"}
         >
-          <Ellipsis size={18} aria-hidden="true" />
-          <span>More</span>
+          <img src={activeSportSummary?.iconSrc ?? genericSportIconUrl} alt="" aria-hidden="true" />
+          <span>Sports</span>
         </button>
       </nav>
 
@@ -1032,34 +1140,76 @@ export default function App() {
   );
 }
 
-function HeaderSportButton({
-  sport,
-  href,
-  active,
+function HeaderSportsMenu({
+  sports,
+  activeSportKey,
+  activeSport,
+  open,
+  menuRef,
+  onToggle,
   onSelect,
 }: {
-  sport: HeaderSportSummary;
-  href: string;
-  active: boolean;
-  onSelect: () => void;
+  sports: HeaderSportSummary[];
+  activeSportKey: string;
+  activeSport: HeaderSportSummary | null;
+  open: boolean;
+  menuRef: RefObject<HTMLDivElement | null>;
+  onToggle: () => void;
+  onSelect: (sportKey: string) => void;
 }) {
+  const active = Boolean(activeSportKey);
+
   return (
-    <a
-      href={href}
-      className={active ? `header-sport is-${sport.accent} is-active` : `header-sport is-${sport.accent}`}
-      onClick={(event) => {
-        event.preventDefault();
-        onSelect();
-      }}
-      aria-current={active ? "page" : undefined}
-    >
-      <span className="header-sport-icon">
-        <img src={sport.iconSrc} alt="" decoding="async" draggable="false" />
-      </span>
-      <span className="header-sport-copy">
-        <strong>{sport.label}</strong>
-      </span>
-    </a>
+    <div className="header-sports-menu" ref={menuRef}>
+      <button
+        type="button"
+        className={active || open ? "header-sports-trigger is-active" : "header-sports-trigger"}
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls="header-sports-menu"
+        aria-current={active ? "page" : undefined}
+      >
+        <span className="header-sports-trigger-icon">
+          {activeSport ? (
+            <img src={activeSport.iconSrc} alt="" decoding="async" draggable="false" />
+          ) : (
+            <Activity size={16} aria-hidden="true" />
+          )}
+        </span>
+        <span>Sports</span>
+      </button>
+
+      {open ? (
+        <div id="header-sports-menu" className="header-sports-popover" role="menu" aria-label="Sport pages">
+          {sports.map((sport) => {
+            const sportActive = activeSportKey === sport.key;
+            const sportMeta = sport.live ? `${sport.live} live` : sport.upcoming ? `${sport.upcoming} next` : `${sport.total}`;
+
+            return (
+              <a
+                key={sport.key}
+                href={sportRouteForKey(sport.key).path}
+                className={
+                  sportActive
+                    ? `header-sports-option is-${sport.accent} is-active`
+                    : `header-sports-option is-${sport.accent}`
+                }
+                role="menuitem"
+                aria-current={sportActive ? "page" : undefined}
+                onClick={(event) => {
+                  event.preventDefault();
+                  onSelect(sport.key);
+                }}
+              >
+                <img src={sport.iconSrc} alt="" loading="lazy" decoding="async" draggable="false" />
+                <span>{sport.label}</span>
+                <small>{sportMeta}</small>
+              </a>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -1258,7 +1408,6 @@ function HomePage({
   const heroAccent = heroMatch ? sportAccent(heroMatch.sportKey) : "generic";
   const heroSportIcon = heroMatch ? sportIconForKey(heroMatch.sportKey) : "";
   const heroFeatureLabel = "Featured live match";
-  const heroSportActions = sportFocusItems.slice(0, 2);
 
   return (
     <section className="home-page" aria-label="Home">
@@ -1279,25 +1428,21 @@ function HomePage({
             <p>Pick a sport, jump into a live stream, and keep scores close.</p>
           </div>
           <div className="home-hero-sport-actions">
-            {heroSportActions.map((sport) => {
-              const sportHref = sport.key === "cricket" ? seoRoutes.cricket.path : seoRoutes.football.path;
-
-              return (
-                <a
-                  key={sport.key}
-                  href={sportHref}
-                  aria-label={`Watch ${sport.label}`}
-                  className={`home-hero-sport-action is-${sport.accent}`}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    onSelectSport(sport.key);
-                  }}
-                >
-                  <img src={sport.iconSrc} alt="" loading="lazy" decoding="async" draggable="false" />
-                  <span>Watch {sport.label}</span>
-                </a>
-              );
-            })}
+            <a
+              href={seoRoutes.live.path}
+              className="home-hero-sport-action is-live"
+              onClick={(event) => {
+                event.preventDefault();
+                onOpenStatus("live");
+              }}
+            >
+              <LiveNavIcon size={18} aria-hidden="true" />
+              <span>Live now</span>
+            </a>
+            <a href="#featured-sports" className="home-hero-sport-action is-browse">
+              <Activity size={18} aria-hidden="true" />
+              <span>Browse sports</span>
+            </a>
           </div>
         </div>
         {heroMatch ? (
@@ -1426,7 +1571,7 @@ function HomePage({
         </section>
       </section>
 
-      <section className="home-panel home-sports-panel">
+      <section id="featured-sports" className="home-panel home-sports-panel">
         <div className="home-panel-heading">
           <div>
             <span className="eyebrow">Sports</span>
@@ -1462,6 +1607,8 @@ function ScoresPage({
   const counts = useMemo(() => scoreCounts(scores), [scores]);
   const [scoreFilters, setScoreFilters] = useState<ScoreFilters>(defaultScoreFilters);
   const [selectedScoreId, setSelectedScoreId] = useState("");
+  const insightPanelRef = useRef<HTMLElement | null>(null);
+  const shouldScrollSelectedScoreIntoView = useMediaQuery(compactScoreListQuery);
   const filteredScores = useMemo(
     () => filterScoreMatches(scores, scoreFilters).slice(0, 30),
     [scores, scoreFilters],
@@ -1488,6 +1635,14 @@ function ScoresPage({
     }
   }, [filteredScores, selectedScoreId]);
 
+  const selectScore = (score: SportScoreMatch) => {
+    setSelectedScoreId(score.id);
+    if (!shouldScrollSelectedScoreIntoView || typeof window === "undefined") return;
+    window.requestAnimationFrame(() => {
+      insightPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
   return (
     <section className="scores-page" aria-label="Scores">
       <section className="scores-hero">
@@ -1506,15 +1661,13 @@ function ScoresPage({
               value={updatedAt ? timeAgo(updatedAt) : loading ? "Loading" : "Pending"}
             />
           </section>
-          <button
-            type="button"
+          <RefreshIconButton
             className="mini-button icon-only-button scores-refresh-button"
-            onClick={onRefresh}
-            aria-label="Refresh scores"
+            onRefresh={onRefresh}
+            label="Refresh scores"
             title="Refresh scores"
-          >
-            <RefreshCw size={16} aria-hidden="true" />
-          </button>
+            size={16}
+          />
         </div>
       </section>
 
@@ -1529,10 +1682,11 @@ function ScoresPage({
           filters={scoreFilters}
           selectedScoreId={selectedScore?.id ?? ""}
           onChangeFilters={setScoreFilters}
-          onSelectScore={(score) => setSelectedScoreId(score.id)}
+          onSelectScore={selectScore}
           onRefresh={onRefresh}
         />
         <ScoreInsightPanel
+          panelRef={insightPanelRef}
           score={selectedScore}
           insight={insight}
           loading={insightLoading}
@@ -1565,6 +1719,8 @@ const defaultScoreFilters: ScoreFilters = {
   competition: "all",
   query: "",
 };
+const compactScoreListQuery = "(max-width: 959px)";
+const compactScoreListLimit = 8;
 
 const scoreCompetitionFilters: Array<{ key: ScoreCompetitionFilter; label: string; sport?: ScoreSportFilter }> = [
   { key: "all", label: "All" },
@@ -1661,9 +1817,28 @@ function ScoreboardPanel({
     filters.competition !== defaultScoreFilters.competition,
   ].filter(Boolean).length;
   const filterSummary = `${filteredScores.length.toLocaleString()} of ${scores.length.toLocaleString()} matches`;
-  const shownSummary = `${filteredScores.length.toLocaleString()} shown`;
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [openFilterMenu, setOpenFilterMenu] = useState("");
+  const [scoreListExpanded, setScoreListExpanded] = useState(false);
+  const isCompactScoreList = useMediaQuery(compactScoreListQuery);
+  const shouldLimitScores = isCompactScoreList && !scoreListExpanded && filteredScores.length > compactScoreListLimit;
+  const visibleScores = shouldLimitScores ? filteredScores.slice(0, compactScoreListLimit) : filteredScores;
+  const hiddenScoreCount = filteredScores.length - visibleScores.length;
+  const shownSummary =
+    hiddenScoreCount > 0
+      ? `${visibleScores.length.toLocaleString()} of ${filteredScores.length.toLocaleString()} shown`
+      : `${filteredScores.length.toLocaleString()} shown`;
+
+  useEffect(() => {
+    setScoreListExpanded(false);
+  }, [filters.competition, filters.priority, filters.query, filters.sport, filters.status]);
+
+  useEffect(() => {
+    if (!isCompactScoreList || scoreListExpanded || !selectedScoreId) return;
+    const selectedIndex = filteredScores.findIndex((score) => score.id === selectedScoreId);
+    if (selectedIndex >= compactScoreListLimit) setScoreListExpanded(true);
+  }, [filteredScores, isCompactScoreList, scoreListExpanded, selectedScoreId]);
+
   const updateFilters = (nextFilters: Partial<ScoreFilters>) => {
     onChangeFilters((currentFilters) => ({ ...currentFilters, ...nextFilters }));
   };
@@ -1688,13 +1863,11 @@ function ScoreboardPanel({
       sport: competition.sport ?? currentFilters.sport,
     }));
   };
-  const notice = error
+  const warningNotice = error
     ? fromCache
       ? "Score refresh failed. Showing cached results."
       : error
-    : updatedAt
-      ? `Updated ${timeAgo(updatedAt)}`
-      : "Connecting to scores";
+    : "";
 
   return (
     <section className="score-panel" aria-label="Scoreboard">
@@ -1704,16 +1877,13 @@ function ScoreboardPanel({
           <p>{filterSummary}</p>
         </div>
         <div className="score-heading-actions">
-          <span className={error ? "score-sync is-warning" : "score-sync"}>{notice}</span>
-          <button
-            type="button"
+          {warningNotice ? <span className="score-sync is-warning">{warningNotice}</span> : null}
+          <RefreshIconButton
             className="mini-button icon-only-button"
-            onClick={onRefresh}
-            aria-label="Refresh scores"
+            onRefresh={onRefresh}
+            label="Refresh scores"
             title="Refresh scores"
-          >
-            <RefreshCw size={15} aria-hidden="true" />
-          </button>
+          />
         </div>
       </div>
 
@@ -1836,7 +2006,7 @@ function ScoreboardPanel({
         {loading && scores.length === 0 ? (
           <LoadingRows />
         ) : filteredScores.length ? (
-          filteredScores.map((score) => (
+          visibleScores.map((score) => (
             <ScoreRow
               key={score.id}
               score={score}
@@ -1852,7 +2022,87 @@ function ScoreboardPanel({
           />
         )}
       </div>
+
+      {hiddenScoreCount > 0 ? (
+        <div className="score-list-footer">
+          <button
+            type="button"
+            className="score-list-more"
+            onClick={() => setScoreListExpanded(true)}
+            aria-label={`Show ${hiddenScoreCount.toLocaleString()} more score matches`}
+          >
+            <span>Show {hiddenScoreCount.toLocaleString()} more</span>
+            <ChevronRight size={15} aria-hidden="true" />
+          </button>
+        </div>
+      ) : null}
     </section>
+  );
+}
+
+function useMediaQuery(query: string) {
+  const readQuery = () => (typeof window === "undefined" ? false : window.matchMedia(query).matches);
+  const [matches, setMatches] = useState(readQuery);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia(query);
+    const handleChange = () => setMatches(mediaQuery.matches);
+
+    handleChange();
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [query]);
+
+  return matches;
+}
+
+function RefreshIconButton({
+  className = "mini-button icon-only-button",
+  onRefresh,
+  label,
+  title = label,
+  size = 15,
+}: {
+  className?: string;
+  onRefresh: () => void;
+  label: string;
+  title?: string;
+  size?: number;
+}) {
+  const [isPressed, setIsPressed] = useState(false);
+  const animationTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (animationTimer.current !== null && typeof window !== "undefined") {
+        window.clearTimeout(animationTimer.current);
+      }
+    };
+  }, []);
+
+  const handleClick = () => {
+    if (typeof window !== "undefined") {
+      if (animationTimer.current !== null) window.clearTimeout(animationTimer.current);
+      setIsPressed(false);
+      window.requestAnimationFrame(() => {
+        setIsPressed(true);
+        animationTimer.current = window.setTimeout(() => setIsPressed(false), 680);
+      });
+    }
+    onRefresh();
+  };
+
+  return (
+    <button
+      type="button"
+      className={`${className} refresh-icon-button${isPressed ? " is-pressed" : ""}`}
+      onClick={handleClick}
+      aria-label={label}
+      title={title}
+    >
+      <RefreshCw className="refresh-button-icon" size={size} aria-hidden="true" />
+    </button>
   );
 }
 
@@ -1963,6 +2213,7 @@ function ScoreRow({
 }
 
 function ScoreInsightPanel({
+  panelRef,
   score,
   insight,
   loading,
@@ -1970,6 +2221,7 @@ function ScoreInsightPanel({
   fromCache,
   onRefresh,
 }: {
+  panelRef?: RefObject<HTMLElement | null>;
   score: SportScoreMatch | null;
   insight: SportScoreInsight | null;
   loading: boolean;
@@ -1985,7 +2237,7 @@ function ScoreInsightPanel({
 
   if (!score) {
     return (
-      <section className="score-insight-panel" aria-label="Score details">
+      <section ref={panelRef} className="score-insight-panel" aria-label="Score details">
         <EmptyState icon={Activity} title="No match selected" detail="Choose a score to view match context" />
       </section>
     );
@@ -1996,20 +2248,10 @@ function ScoreInsightPanel({
   const standings = insight?.standings ?? null;
   const hasLeaders = Boolean(insight?.goalLeaders?.leaders.length || insight?.assistLeaders?.leaders.length);
   const hasTeams = Boolean(insight?.homeSchedule?.matches.length || insight?.awaySchedule?.matches.length);
-  const statusText = loading
-    ? fromCache
-      ? "Updating context"
-      : "Loading context"
-    : error
-      ? fromCache
-        ? "Using cached context"
-        : "Context unavailable"
-      : insight?.updatedAt
-        ? `Updated ${timeAgo(insight.updatedAt)}`
-        : "Ready";
+  const contextErrorMessage = error && !fromCache ? error : "";
 
   return (
-    <section className="score-insight-panel" aria-label="Score details">
+    <section ref={panelRef} className="score-insight-panel" aria-label="Score details">
       <div className="score-insight-header">
         <div className="score-insight-matchup">
           <div className="score-insight-team is-home">
@@ -2034,23 +2276,18 @@ function ScoreInsightPanel({
         </div>
         <div className="score-insight-meta">
           <span>{score.competition}</span>
-          <span>{statusText}</span>
-          <button
-            type="button"
+          <RefreshIconButton
             className="mini-button icon-only-button"
-            onClick={onRefresh}
-            aria-label="Reload match context"
+            onRefresh={onRefresh}
+            label="Reload match context"
             title="Reload match context"
-          >
-            <RefreshCw size={15} aria-hidden="true" />
-          </button>
+          />
         </div>
       </div>
 
-      {loading || error || fromCache ? (
+      {contextErrorMessage ? (
         <div className="score-context-status">
-          <span>{statusText}</span>
-          {error && !fromCache ? <strong>{error}</strong> : null}
+          <strong>{contextErrorMessage}</strong>
         </div>
       ) : null}
 
@@ -2744,12 +2981,12 @@ function MatchCard({
               </span>
             </>
           ) : (
-            <small className="match-card-channel-label">{match.league}</small>
+          <small className="match-card-channel-label">{compactCompetitionLabel(match.league)}</small>
           )}
         </span>
 
         <span className="match-card-meta">
-          <small>{match.sportLabel} · {score?.competition || match.league}</small>
+          <small>{match.sportLabel} · {compactCompetitionLabel(score?.competition || match.league)}</small>
           {showTrailingMeta ? <small>{selectable && score ? scoreLine : matchStreamMeta(match)}</small> : null}
         </span>
       </span>
@@ -2963,6 +3200,9 @@ function seoRouteFromState(
   if (pageMode === "scores") return seoRoutes.scores;
   if (pageMode === "home") return seoRoutes.home;
   if (sportFilter === "football") return seoRoutes.football;
+  if (sportFilter === "baseball") return seoRoutes.baseball;
+  if (sportFilter === "basketball") return seoRoutes.basketball;
+  if (sportFilter === "fight") return seoRoutes.fight;
   if (sportFilter === "cricket") return seoRoutes.cricket;
   if (statusFilter === "live") return seoRoutes.live;
   if (statusFilter === "upcoming") return seoRoutes.schedule;
@@ -3066,6 +3306,9 @@ function sportSummaryOrFallback(
 function sportIconForKey(key: string) {
   const visualKey = sportVisualKey(key);
   if (visualKey === "football") return footballIconUrl;
+  if (visualKey === "baseball") return baseballIconUrl;
+  if (visualKey === "basketball") return basketballIconUrl;
+  if (visualKey === "fight") return fightIconUrl;
   if (visualKey === "cricket") return cricketIconUrl;
   return genericSportIconUrl;
 }
@@ -3077,8 +3320,19 @@ function sportAccent(key: string) {
 function sportVisualKey(key: string) {
   const normalized = key.toLowerCase();
   if (normalized.includes("football") || normalized.includes("soccer")) return "football";
+  if (normalized.includes("baseball") || normalized.includes("mlb")) return "baseball";
+  if (normalized.includes("basketball") || normalized.includes("nba") || normalized.includes("wnba")) return "basketball";
+  if (normalized.includes("fight") || normalized.includes("boxing") || normalized.includes("mma") || normalized.includes("wwe") || normalized.includes("aew") || normalized.includes("wrestling")) return "fight";
   if (normalized.includes("cricket")) return "cricket";
   return "generic";
+}
+
+function sportRouteForKey(sportKey: string) {
+  if (sportKey === "baseball") return seoRoutes.baseball;
+  if (sportKey === "basketball") return seoRoutes.basketball;
+  if (sportKey === "fight") return seoRoutes.fight;
+  if (sportKey === "cricket") return seoRoutes.cricket;
+  return seoRoutes.football;
 }
 
 function pageQueueTitle(
@@ -3137,6 +3391,18 @@ function isStreamSelectable(match: Match) {
 function matchStreamMeta(match: Match) {
   if (!isStreamSelectable(match)) return "Not live yet";
   return `${match.sources.length} live ${match.sources.length === 1 ? "feed" : "feeds"}`;
+}
+
+function compactCompetitionLabel(value: string) {
+  const label = value.trim();
+  const normalized = normalizeSearchValue(label);
+
+  if (/\bwomen'?s national basketball association\b/.test(normalized)) return "WNBA";
+  if (/\bnational basketball association\b/.test(normalized)) return "NBA";
+  if (/\bmajor league baseball\b/.test(normalized)) return "MLB";
+  if (/\bnational football league\b/.test(normalized)) return "NFL";
+
+  return label;
 }
 
 function initials(value: string) {
@@ -3231,10 +3497,13 @@ function searchResultStats(matches: Match[]) {
       if (match.status === "live") stats.live += 1;
       if (match.status === "upcoming") stats.upcoming += 1;
       if (match.sportKey === "football") stats.football += 1;
+      if (match.sportKey === "baseball") stats.baseball += 1;
+      if (match.sportKey === "basketball") stats.basketball += 1;
+      if (match.sportKey === "fight") stats.fight += 1;
       if (match.sportKey === "cricket") stats.cricket += 1;
       return stats;
     },
-    { total: 0, live: 0, upcoming: 0, football: 0, cricket: 0 },
+    { total: 0, live: 0, upcoming: 0, football: 0, baseball: 0, basketball: 0, fight: 0, cricket: 0 },
   );
 }
 
