@@ -9,6 +9,7 @@ import {
   Search,
   Server,
   ShieldCheck,
+  Trophy,
   Users,
   WifiOff,
   X,
@@ -1440,7 +1441,7 @@ function HomePage({
               <span>Live now</span>
             </a>
             <a href="#featured-sports" className="home-hero-sport-action is-browse">
-              <Activity size={18} aria-hidden="true" />
+              <Trophy className="home-hero-browse-icon" size={16} aria-hidden="true" />
               <span>Browse sports</span>
             </a>
           </div>

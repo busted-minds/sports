@@ -12214,6 +12214,11 @@ a:focus-visible {
   line-height: 1.14;
 }
 
+.team-title h1 {
+  line-height: 1.16;
+  padding-bottom: 0.08em;
+}
+
 /* Compact sport navigation: one picker in the desktop header, one sheet on mobile. */
 .header-sports-menu {
   position: relative;
@@ -12373,6 +12378,12 @@ a:focus-visible {
   width: 20px;
   height: 20px;
   stroke-width: 2.4;
+}
+
+.home-hero-sport-action svg.home-hero-browse-icon {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2.5;
 }
 
 .home-hero-sport-action.is-live {
