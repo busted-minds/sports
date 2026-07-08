@@ -1173,7 +1173,7 @@ function HeaderSportsMenu({
           {activeSport ? (
             <img src={activeSport.iconSrc} alt="" decoding="async" draggable="false" />
           ) : (
-            <Activity size={16} aria-hidden="true" />
+            <img src={genericSportIconUrl} alt="" decoding="async" draggable="false" />
           )}
         </span>
         <span>Sports</span>
