@@ -1,0 +1,110 @@
+[
+  {
+    "id": 188,
+    "sport": "football",
+    "server_name": "TSN1",
+    "server_url": "https://footsters-live.pages.dev/?id=tsn1",
+    "position": 12,
+    "updated_at": "2026-07-09T20:01:25.864083+00:00",
+    "match_id": -1223992131
+  },
+  {
+    "id": 192,
+    "sport": "football",
+    "server_name": "TSN 4",
+    "server_url": "https://footsters-live.pages.dev/?id=tsn4",
+    "position": 13,
+    "updated_at": "2026-07-09T20:01:25.864083+00:00",
+    "match_id": -1223992131
+  },
+  {
+    "id": 195,
+    "sport": "football",
+    "server_name": "GOL TV",
+    "server_url": "https://footsters-tv.pages.dev/?play=1&stream=1",
+    "position": 7,
+    "updated_at": "2026-07-09T20:12:41.473699+00:00",
+    "match_id": -1223992131
+  },
+  {
+    "id": 199,
+    "sport": "football",
+    "server_name": "Sports Network",
+    "server_url": "https://footsters-live.pages.dev/?id=tsn4",
+    "position": 8,
+    "updated_at": "2026-07-09T20:01:25.864083+00:00",
+    "match_id": -1223992131
+  },
+  {
+    "id": 201,
+    "sport": "football",
+    "server_name": "TSN1",
+    "server_url": "https://cinefifa.pages.dev/tsn-english/",
+    "position": 10,
+    "updated_at": "2026-07-09T20:01:25.864083+00:00",
+    "match_id": -1223992131
+  },
+  {
+    "id": 208,
+    "sport": "football",
+    "server_name": "TSN1",
+    "server_url": "https://live.api-live.workers.dev/?id=tsn1",
+    "position": 11,
+    "updated_at": "2026-07-09T20:01:25.864083+00:00",
+    "match_id": -1223992131
+  },
+  {
+    "id": 209,
+    "sport": "football",
+    "server_name": "GOL TV",
+    "server_url": "https://cinearena15.pages.dev/strm/?id=goltv",
+    "position": 2,
+    "updated_at": "2026-07-09T20:01:25.864083+00:00",
+    "match_id": -1223992131
+  },
+  {
+    "id": 210,
+    "sport": "football",
+    "server_name": "Bein1 IOS",
+    "server_url": "https://footsterss.pages.dev/ios?id=bein1iOS",
+    "position": 3,
+    "updated_at": "2026-07-09T20:01:25.864083+00:00",
+    "match_id": -1223992131
+  },
+  {
+    "id": 226,
+    "sport": "football",
+    "server_name": "FOX",
+    "server_url": "https://cineprime7.pages.dev/english/",
+    "position": 4,
+    "updated_at": "2026-07-09T20:01:25.864083+00:00",
+    "match_id": -1223992131
+  },
+  {
+    "id": 227,
+    "sport": "football",
+    "server_name": "TSN4",
+    "server_url": "https://cineprime7.pages.dev/tsn/",
+    "position": 5,
+    "updated_at": "2026-07-09T20:01:25.864083+00:00",
+    "match_id": -1223992131
+  },
+  {
+    "id": 233,
+    "sport": "cricket",
+    "server_name": "Willow",
+    "server_url": "https://techy-kuldeep-live-cricket5656.vercel.app/WILLOWSPORTS.html",
+    "position": 4,
+    "updated_at": "2026-07-10T10:07:11.447364+00:00",
+    "match_id": 160
+  },
+  {
+    "id": 240,
+    "sport": "cricket",
+    "server_name": "Willow ICC",
+    "server_url": "https://gyanibrocricketchannel.github.io/Sports18",
+    "position": 2,
+    "updated_at": "2026-07-09T17:31:37.221911+00:00",
+    "match_id": -1335693950
+  }
+]

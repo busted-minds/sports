@@ -11900,10 +11900,12 @@ a:focus-visible {
   --theme-baseball: #d8bd78;
   --theme-basketball: #d9782f;
   --theme-fight: #d94f5c;
+  --theme-tennis: #b4cd57;
+  --theme-volleyball: #5aa8d6;
 }
 
 .header-sport-strip {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 .header-sport.is-baseball::before,
@@ -12098,6 +12100,138 @@ a:focus-visible {
   background: rgba(217, 79, 92, 0.14);
 }
 
+.header-sport.is-tennis::before,
+.header-sport.is-tennis.is-active .header-sport-count,
+.match-card.is-tennis::after,
+.score-row.is-tennis::before,
+.match-header.is-tennis::before,
+.home-feature-card.is-tennis::before {
+  background: var(--theme-tennis);
+}
+
+.header-sport.is-tennis.is-active {
+  border-color: rgba(180, 205, 87, 0.34);
+}
+
+.header-sport.is-tennis .header-sport-icon,
+.home-sport-card.is-tennis .home-sport-icon,
+.team-mark.is-tennis,
+.queue-sport-mark.is-tennis,
+.match-sport-mark.is-tennis {
+  color: var(--theme-tennis);
+  border-color: rgba(180, 205, 87, 0.3);
+  background: rgba(180, 205, 87, 0.12);
+  box-shadow: none;
+}
+
+.home-sport-card.is-tennis:hover,
+.match-card.is-tennis:not(.is-selected):hover {
+  border-color: rgba(180, 205, 87, 0.48);
+}
+
+.match-card.is-tennis,
+.home-sport-card.is-tennis {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.018)),
+    radial-gradient(circle at 14% 18%, rgba(180, 205, 87, 0.12), transparent 34%),
+    #12161a;
+}
+
+.match-header.is-tennis {
+  background:
+    linear-gradient(126deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.022) 58%),
+    linear-gradient(90deg, rgba(180, 205, 87, 0.12), rgba(255, 255, 255, 0) 48%),
+    rgba(8, 10, 12, 0.78);
+}
+
+.sport-quick-button.is-tennis.is-active {
+  box-shadow: inset 0 -2px 0 var(--theme-tennis);
+}
+
+.sport-quick-button.is-tennis .sport-quick-icon {
+  background: rgba(180, 205, 87, 0.12);
+}
+
+.home-hero-sport-action.is-tennis {
+  color: #f7fbe8;
+  border-color: rgba(180, 205, 87, 0.36);
+  background:
+    linear-gradient(180deg, rgba(180, 205, 87, 0.16), rgba(180, 205, 87, 0.08)),
+    rgba(15, 18, 21, 0.84);
+}
+
+.home-hero-sport-action.is-tennis img {
+  background: rgba(180, 205, 87, 0.14);
+}
+
+.header-sport.is-volleyball::before,
+.header-sport.is-volleyball.is-active .header-sport-count,
+.match-card.is-volleyball::after,
+.score-row.is-volleyball::before,
+.match-header.is-volleyball::before,
+.home-feature-card.is-volleyball::before {
+  background: var(--theme-volleyball);
+}
+
+.header-sport.is-volleyball.is-active {
+  border-color: rgba(90, 168, 214, 0.34);
+}
+
+.header-sport.is-volleyball .header-sport-icon,
+.home-sport-card.is-volleyball .home-sport-icon,
+.team-mark.is-volleyball,
+.queue-sport-mark.is-volleyball,
+.match-sport-mark.is-volleyball {
+  color: var(--theme-volleyball);
+  border-color: rgba(90, 168, 214, 0.3);
+  background: rgba(90, 168, 214, 0.12);
+  box-shadow: none;
+}
+
+.home-sport-card.is-volleyball:hover,
+.match-card.is-volleyball:not(.is-selected):hover {
+  border-color: rgba(90, 168, 214, 0.48);
+}
+
+.match-card.is-volleyball,
+.home-sport-card.is-volleyball {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.018)),
+    radial-gradient(circle at 14% 18%, rgba(90, 168, 214, 0.12), transparent 34%),
+    #12161a;
+}
+
+.match-header.is-volleyball {
+  background:
+    linear-gradient(126deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.022) 58%),
+    linear-gradient(90deg, rgba(90, 168, 214, 0.12), rgba(255, 255, 255, 0) 48%),
+    rgba(8, 10, 12, 0.78);
+}
+
+.sport-quick-button.is-volleyball.is-active {
+  box-shadow: inset 0 -2px 0 var(--theme-volleyball);
+}
+
+.sport-quick-button.is-volleyball .sport-quick-icon {
+  background: rgba(90, 168, 214, 0.12);
+}
+
+.home-hero-sport-action.is-volleyball {
+  color: #edf8ff;
+  border-color: rgba(90, 168, 214, 0.36);
+  background:
+    linear-gradient(180deg, rgba(90, 168, 214, 0.16), rgba(90, 168, 214, 0.08)),
+    rgba(15, 18, 21, 0.84);
+}
+
+.home-hero-sport-action.is-volleyball img {
+  background: rgba(90, 168, 214, 0.14);
+}
+
+.home-sport-grid > .home-sport-card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 /* Prevent matchup names from being clipped in the selected header and list cards. */
 .match-side strong,
 .match-card-team strong {
@@ -12286,6 +12420,8 @@ a:focus-visible {
   grid-template-columns: 1fr;
   gap: 6px;
   width: min(300px, calc(100vw - 32px));
+  max-height: min(430px, calc(100vh - var(--topbar-height) - 32px));
+  overflow-y: auto;
   padding: 8px;
   border: 1px solid rgba(210, 219, 225, 0.16);
   border-radius: 12px;

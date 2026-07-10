@@ -17,7 +17,27 @@
       "destination": "/index.html"
     },
     {
+      "source": "/baseball",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/basketball",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/fight",
+      "destination": "/index.html"
+    },
+    {
       "source": "/cricket",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tennis",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/volleyball",
       "destination": "/index.html"
     }
   ]

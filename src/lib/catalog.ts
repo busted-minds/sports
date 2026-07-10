@@ -96,7 +96,15 @@ type DbMatch = {
 
 const mediaParams = ["url", "src", "source", "stream", "file", "link", "u"];
 const directMediaPattern = /\.(m3u8|mpd|mp4|webm|m4v|mov)(\?|$)/i;
-const allowedStreamSports = new Set(["football", "baseball", "basketball", "fight", "cricket"]);
+const allowedStreamSports = new Set([
+  "football",
+  "baseball",
+  "basketball",
+  "fight",
+  "cricket",
+  "tennis",
+  "volleyball",
+]);
 const fallbackServers: Record<string, Array<{ name: string; url: string }>> = {
   football: [
     { name: "Telemundo", url: "https://telemundo.vercel.app/" },

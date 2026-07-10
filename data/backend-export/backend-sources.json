@@ -1,0 +1,1309 @@
+{
+  "exported_at": "2026-07-10T16:53:55.376Z",
+  "supabase_servers": [
+    {
+      "id": 188,
+      "sport": "football",
+      "match_id": -1223992131,
+      "name": "TSN1",
+      "url": "https://footsters-live.pages.dev/?id=tsn1",
+      "position": 12
+    },
+    {
+      "id": 192,
+      "sport": "football",
+      "match_id": -1223992131,
+      "name": "TSN 4",
+      "url": "https://footsters-live.pages.dev/?id=tsn4",
+      "position": 13
+    },
+    {
+      "id": 195,
+      "sport": "football",
+      "match_id": -1223992131,
+      "name": "GOL TV",
+      "url": "https://footsters-tv.pages.dev/?play=1&stream=1",
+      "position": 7
+    },
+    {
+      "id": 199,
+      "sport": "football",
+      "match_id": -1223992131,
+      "name": "Sports Network",
+      "url": "https://footsters-live.pages.dev/?id=tsn4",
+      "position": 8
+    },
+    {
+      "id": 201,
+      "sport": "football",
+      "match_id": -1223992131,
+      "name": "TSN1",
+      "url": "https://cinefifa.pages.dev/tsn-english/",
+      "position": 10
+    },
+    {
+      "id": 208,
+      "sport": "football",
+      "match_id": -1223992131,
+      "name": "TSN1",
+      "url": "https://live.api-live.workers.dev/?id=tsn1",
+      "position": 11
+    },
+    {
+      "id": 209,
+      "sport": "football",
+      "match_id": -1223992131,
+      "name": "GOL TV",
+      "url": "https://cinearena15.pages.dev/strm/?id=goltv",
+      "position": 2
+    },
+    {
+      "id": 210,
+      "sport": "football",
+      "match_id": -1223992131,
+      "name": "Bein1 IOS",
+      "url": "https://footsterss.pages.dev/ios?id=bein1iOS",
+      "position": 3
+    },
+    {
+      "id": 226,
+      "sport": "football",
+      "match_id": -1223992131,
+      "name": "FOX",
+      "url": "https://cineprime7.pages.dev/english/",
+      "position": 4
+    },
+    {
+      "id": 227,
+      "sport": "football",
+      "match_id": -1223992131,
+      "name": "TSN4",
+      "url": "https://cineprime7.pages.dev/tsn/",
+      "position": 5
+    },
+    {
+      "id": 233,
+      "sport": "cricket",
+      "match_id": 160,
+      "name": "Willow",
+      "url": "https://techy-kuldeep-live-cricket5656.vercel.app/WILLOWSPORTS.html",
+      "position": 4
+    },
+    {
+      "id": 240,
+      "sport": "cricket",
+      "match_id": -1335693950,
+      "name": "Willow ICC",
+      "url": "https://gyanibrocricketchannel.github.io/Sports18",
+      "position": 2
+    }
+  ],
+  "dami_sources": [
+    {
+      "category": "american-football",
+      "stream_id": "cfl/2026-07-10/tor-wpg",
+      "stream_name": "Toronto Argonauts vs. Winnipeg Blue Bombers",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=cfl%2F2026-07-10%2Ftor-wpg"
+    },
+    {
+      "category": "american-football",
+      "stream_id": "afle/2026-07-11/lon-alp",
+      "stream_name": "London Warriors vs. Alpine Rams",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afle%2F2026-07-11%2Flon-alp"
+    },
+    {
+      "category": "american-football",
+      "stream_id": "afle/2026-07-11/par-vie",
+      "stream_name": "Paris Lights vs. Vienna Vikings",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afle%2F2026-07-11%2Fpar-vie"
+    },
+    {
+      "category": "american-football",
+      "stream_id": "cfl/2026-07-11/cgy-mtl",
+      "stream_name": "Calgary Stampeders vs. Montreal Alouettes",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=cfl%2F2026-07-11%2Fcgy-mtl"
+    },
+    {
+      "category": "american-football",
+      "stream_id": "afle/2026-07-12/fir-ber",
+      "stream_name": "Firenze Red Lions vs. Berlin Thunder",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afle%2F2026-07-12%2Ffir-ber"
+    },
+    {
+      "category": "american-football",
+      "stream_id": "afle/2026-07-12/pan-rhe",
+      "stream_name": "Panthers Wroclaw vs. Rhein Fire",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afle%2F2026-07-12%2Fpan-rhe"
+    },
+    {
+      "category": "american-football",
+      "stream_id": "cfl/2026-07-12/ham-ssk",
+      "stream_name": "Hamilton Tiger-Cats vs. Saskatchewan Roughriders",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=cfl%2F2026-07-12%2Fham-ssk"
+    },
+    {
+      "category": "afl",
+      "stream_id": "afl/2026-07-10/coll-nmfc",
+      "stream_name": "Collingwood vs. North Melbourne",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afl%2F2026-07-10%2Fcoll-nmfc"
+    },
+    {
+      "category": "afl",
+      "stream_id": "afl/2026-07-11/stk-port",
+      "stream_name": "St Kilda vs. Port Adelaide",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afl%2F2026-07-11%2Fstk-port"
+    },
+    {
+      "category": "afl",
+      "stream_id": "afl/2026-07-11/gws-geel",
+      "stream_name": "GWS GIANTS vs. Geelong Cats",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afl%2F2026-07-11%2Fgws-geel"
+    },
+    {
+      "category": "afl",
+      "stream_id": "afl/2026-07-11/carl-haw",
+      "stream_name": "Carlton vs. Hawthorn",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afl%2F2026-07-11%2Fcarl-haw"
+    },
+    {
+      "category": "afl",
+      "stream_id": "afl/2026-07-11/adel-gcfc",
+      "stream_name": "Adelaide Crows vs. Gold Coast SUNS",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afl%2F2026-07-11%2Fadel-gcfc"
+    },
+    {
+      "category": "afl",
+      "stream_id": "afl/2026-07-12/wb-wce",
+      "stream_name": "Western Bulldogs vs. West Coast Eagles",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afl%2F2026-07-12%2Fwb-wce"
+    },
+    {
+      "category": "afl",
+      "stream_id": "afl/2026-07-12/melb-rich",
+      "stream_name": "Melbourne vs. Richmond",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afl%2F2026-07-12%2Fmelb-rich"
+    },
+    {
+      "category": "afl",
+      "stream_id": "afl/2026-07-12/bl-ess",
+      "stream_name": "Brisbane Lions vs. Essendon",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=afl%2F2026-07-12%2Fbl-ess"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/mil-pit",
+      "stream_name": "Milwaukee Brewers vs. Pittsburgh Pirates",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fmil-pit"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/phi-det",
+      "stream_name": "Philadelphia Phillies vs. Detroit Tigers",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fphi-det"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/nyy-wsh",
+      "stream_name": "New York Yankees vs. Washington Nationals",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fnyy-wsh"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/kc-bal",
+      "stream_name": "Kansas City Royals vs. Baltimore Orioles",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fkc-bal"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/chc-cin",
+      "stream_name": "Chicago Cubs vs. Cincinnati Reds",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fchc-cin"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/cle-mia",
+      "stream_name": "Cleveland Guardians vs. Miami Marlins",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fcle-mia"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/sea-tb",
+      "stream_name": "Seattle Mariners vs. Tampa Bay Rays",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fsea-tb"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/bos-nym",
+      "stream_name": "Boston Red Sox vs. New York Mets",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fbos-nym"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/ath-chw",
+      "stream_name": "Athletics vs. Chicago White Sox",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fath-chw"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/hou-tex",
+      "stream_name": "Houston Astros vs. Texas Rangers",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fhou-tex"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/laa-min",
+      "stream_name": "Los Angeles Angels vs. Minnesota Twins",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Flaa-min"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/atl-stl",
+      "stream_name": "Atlanta Braves vs. St. Louis Cardinals",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fatl-stl"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/tor-sd",
+      "stream_name": "Toronto Blue Jays vs. San Diego Padres",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Ftor-sd"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/ari-lad",
+      "stream_name": "Arizona Diamondbacks vs. Los Angeles Dodgers",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fari-lad"
+    },
+    {
+      "category": "baseball",
+      "stream_id": "mlb/2026-07-10/col-sf",
+      "stream_name": "Colorado Rockies vs. San Francisco Giants",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=mlb%2F2026-07-10%2Fcol-sf"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-10/mil-mia",
+      "stream_name": "Milwaukee Bucks vs. Miami Heat",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-10%2Fmil-mia"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-10/cle-ind",
+      "stream_name": "Cleveland Cavaliers vs. Indiana Pacers",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-10%2Fcle-ind"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-10/bkn-ny",
+      "stream_name": "Brooklyn Nets vs. New York Knicks",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-10%2Fbkn-ny"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-10/hou-den",
+      "stream_name": "Houston Rockets vs. Denver Nuggets",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-10%2Fhou-den"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "wnba/2026-07-10/gs-con",
+      "stream_name": "Golden State Valkyries vs. Connecticut Sun",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wnba%2F2026-07-10%2Fgs-con"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "wnba/2026-07-10/dal-tor",
+      "stream_name": "Dallas Wings vs. Toronto Tempo",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wnba%2F2026-07-10%2Fdal-tor"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-10/chi-mem",
+      "stream_name": "Chicago Bulls vs. Memphis Grizzlies",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-10%2Fchi-mem"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-10/bos-tor",
+      "stream_name": "Boston Celtics vs. Toronto Raptors",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-10%2Fbos-tor"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-10/okc-lal",
+      "stream_name": "Oklahoma City Thunder vs. Los Angeles Lakers",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-10%2Fokc-lal"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "wnba/2026-07-10/chi-la",
+      "stream_name": "Chicago Sky vs. Los Angeles Sparks",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wnba%2F2026-07-10%2Fchi-la"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-10/por-phx",
+      "stream_name": "Portland Trail Blazers vs. Phoenix Suns",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-10%2Fpor-phx"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-11/mia-orl",
+      "stream_name": "Miami Heat vs. Orlando Magic",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-11%2Fmia-orl"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-11/no-cha",
+      "stream_name": "New Orleans Pelicans vs. Charlotte Hornets",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-11%2Fno-cha"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-11/ind-phi",
+      "stream_name": "Indiana Pacers vs. Philadelphia 76ers",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-11%2Find-phi"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-11/ny-sa",
+      "stream_name": "New York Knicks vs. San Antonio Spurs",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-11%2Fny-sa"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-11/den-min",
+      "stream_name": "Denver Nuggets vs. Minnesota Timberwolves",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-11%2Fden-min"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-11/atl-bkn",
+      "stream_name": "Atlanta Hawks vs. Brooklyn Nets",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-11%2Fatl-bkn"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-11/hou-tor",
+      "stream_name": "Houston Rockets vs. Toronto Raptors",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-11%2Fhou-tor"
+    },
+    {
+      "category": "basketball",
+      "stream_id": "nba/2026-07-11/lal-dal",
+      "stream_name": "Los Angeles Lakers vs. Dallas Mavericks",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nba%2F2026-07-11%2Flal-dal"
+    },
+    {
+      "category": "fight",
+      "stream_id": "wwe/smackdown/2026-07-10",
+      "stream_name": "WWE: Friday Night Smackdown",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wwe%2Fsmackdown%2F2026-07-10"
+    },
+    {
+      "category": "fight",
+      "stream_id": "ufc-329",
+      "stream_name": "UFC 329: McGregor vs. Holloway 2",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=ufc-329"
+    },
+    {
+      "category": "fight",
+      "stream_id": "ufc-329",
+      "stream_name": "UFC 329: McGregor vs. Holloway 2",
+      "source_id": "s2",
+      "source_name": "Paramount+ (Spanish)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=ufc-329%2Fspanish"
+    },
+    {
+      "category": "fight",
+      "stream_id": "ufc-329",
+      "stream_name": "UFC 329: McGregor vs. Holloway 2",
+      "source_id": "s3",
+      "source_name": "Paramount+ (Portuguese)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=ufc-329%2Fportuguese"
+    },
+    {
+      "category": "fight",
+      "stream_id": "aew/collision/2026-07-11",
+      "stream_name": "AEW: Saturday Night Collision",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=aew%2Fcollision%2F2026-07-11"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-10/esp-bel",
+      "stream_name": "Spain vs. Belgium",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-10%2Fesp-bel"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-10/esp-bel",
+      "stream_name": "Spain vs. Belgium",
+      "source_id": "s2",
+      "source_name": "FOX",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-10%2Fesp-bel%2Ffox"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-10/esp-bel",
+      "stream_name": "Spain vs. Belgium",
+      "source_id": "s3",
+      "source_name": "FOX 4K (HEVC)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-10%2Fesp-bel%2Ffox-4k-hevc"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-10/esp-bel",
+      "stream_name": "Spain vs. Belgium",
+      "source_id": "s4",
+      "source_name": "BBC/ITV",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-10%2Fesp-bel%2Fuk"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-10/esp-bel",
+      "stream_name": "Spain vs. Belgium",
+      "source_id": "s5",
+      "source_name": "beIN Sports 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-10%2Fesp-bel%2Fbein-sports-1"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-10/esp-bel",
+      "stream_name": "Spain vs. Belgium",
+      "source_id": "s6",
+      "source_name": "DAZN Spain",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-10%2Fesp-bel%2Fdazn-spain"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-10/esp-bel",
+      "stream_name": "Spain vs. Belgium",
+      "source_id": "s7",
+      "source_name": "Telemundo",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-10%2Fesp-bel%2Ftelemundo"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-10/esp-bel",
+      "stream_name": "Spain vs. Belgium",
+      "source_id": "s8",
+      "source_name": "Peacock 4K (HEVC)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-10%2Fesp-bel%2Fpeacock-4k-hevc"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/nor-eng",
+      "stream_name": "Norway vs. England",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Fnor-eng"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/nor-eng",
+      "stream_name": "Norway vs. England",
+      "source_id": "s2",
+      "source_name": "FOX",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Fnor-eng%2Ffox-en"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/nor-eng",
+      "stream_name": "Norway vs. England",
+      "source_id": "s3",
+      "source_name": "FOX 4K (HEVC)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Fnor-eng%2Ffox-4k-hevc-en"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/nor-eng",
+      "stream_name": "Norway vs. England",
+      "source_id": "s4",
+      "source_name": "BBC/ITV",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Fnor-eng%2Fuk"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/nor-eng",
+      "stream_name": "Norway vs. England",
+      "source_id": "s5",
+      "source_name": "beIN Sports 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Fnor-eng%2Fbein-sports-1-fr"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/nor-eng",
+      "stream_name": "Norway vs. England",
+      "source_id": "s6",
+      "source_name": "DAZN Spain",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Fnor-eng%2Fdazn-spain-es"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/nor-eng",
+      "stream_name": "Norway vs. England",
+      "source_id": "s7",
+      "source_name": "Telemundo",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Fnor-eng%2Ftelemundo-es"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/nor-eng",
+      "stream_name": "Norway vs. England",
+      "source_id": "s8",
+      "source_name": "Peacock 4K (HEVC)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Fnor-eng%2Fpeacock-4k-hevc-es"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/arg-sui",
+      "stream_name": "Argentina vs. Switzerland",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Farg-sui"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/arg-sui",
+      "stream_name": "Argentina vs. Switzerland",
+      "source_id": "s2",
+      "source_name": "FOX",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Farg-sui%2Ffox-en"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/arg-sui",
+      "stream_name": "Argentina vs. Switzerland",
+      "source_id": "s3",
+      "source_name": "FOX 4K (HEVC)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Farg-sui%2Ffox-4k-hevc-en"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/arg-sui",
+      "stream_name": "Argentina vs. Switzerland",
+      "source_id": "s4",
+      "source_name": "BBC/ITV",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Farg-sui%2Fuk"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/arg-sui",
+      "stream_name": "Argentina vs. Switzerland",
+      "source_id": "s5",
+      "source_name": "beIN Sports 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Farg-sui%2Fbein-sports-1-fr"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/arg-sui",
+      "stream_name": "Argentina vs. Switzerland",
+      "source_id": "s6",
+      "source_name": "DAZN Spain",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Farg-sui%2Fdazn-spain-es"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/arg-sui",
+      "stream_name": "Argentina vs. Switzerland",
+      "source_id": "s7",
+      "source_name": "Telemundo",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Farg-sui%2Ftelemundo-es"
+    },
+    {
+      "category": "football",
+      "stream_id": "wc/2026-07-11/arg-sui",
+      "stream_name": "Argentina vs. Switzerland",
+      "source_id": "s8",
+      "source_name": "Peacock 4K (HEVC)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wc%2F2026-07-11%2Farg-sui%2Fpeacock-4k-hevc-es"
+    },
+    {
+      "category": "miscellaneous",
+      "stream_id": "tour-de-france/2026/stage-7",
+      "stream_name": "Tour de France- Stage 7",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=tour-de-france%2F2026%2Fstage-7"
+    },
+    {
+      "category": "miscellaneous",
+      "stream_id": "tour-de-france/2026/stage-7",
+      "stream_name": "Tour de France- Stage 7",
+      "source_id": "s2",
+      "source_name": "Peacock",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=tour-de-france%2F2026%2Fstage-7%2Fpeacock"
+    },
+    {
+      "category": "miscellaneous",
+      "stream_id": "tour-de-france/2026/stage-8",
+      "stream_name": "Tour de France- Stage 8",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=tour-de-france%2F2026%2Fstage-8"
+    },
+    {
+      "category": "miscellaneous",
+      "stream_id": "tour-de-france/2026/stage-8",
+      "stream_name": "Tour de France- Stage 8",
+      "source_id": "s2",
+      "source_name": "Peacock",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=tour-de-france%2F2026%2Fstage-8%2Fpeacock"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp1",
+      "stream_name": "Belgian Grand Prix - Practice 1",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp1"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp1",
+      "stream_name": "Belgian Grand Prix - Practice 1",
+      "source_id": "s2",
+      "source_name": "Apple TV (F1TV)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp1%2Ff1tv"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp1",
+      "stream_name": "Belgian Grand Prix - Practice 1",
+      "source_id": "s3",
+      "source_name": "DAZN F1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp1%2Fdazn-es"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp1",
+      "stream_name": "Belgian Grand Prix - Practice 1",
+      "source_id": "s4",
+      "source_name": "Sky Sport F1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp1%2Fsky-sport-f1-de"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp1",
+      "stream_name": "Belgian Grand Prix - Practice 1",
+      "source_id": "s5",
+      "source_name": "V Sport Motor",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp1%2Fv-sport-motor-sv"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp1",
+      "stream_name": "Belgian Grand Prix - Practice 1",
+      "source_id": "s6",
+      "source_name": "Viaplay",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp1%2Fviaplay-nl"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp2",
+      "stream_name": "Belgian Grand Prix - Practice 2",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp2"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp2",
+      "stream_name": "Belgian Grand Prix - Practice 2",
+      "source_id": "s2",
+      "source_name": "Apple TV (F1TV)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp2%2Ff1tv"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp2",
+      "stream_name": "Belgian Grand Prix - Practice 2",
+      "source_id": "s3",
+      "source_name": "DAZN F1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp2%2Fdazn-es"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp2",
+      "stream_name": "Belgian Grand Prix - Practice 2",
+      "source_id": "s4",
+      "source_name": "Sky Sport F1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp2%2Fsky-sport-f1-de"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp2",
+      "stream_name": "Belgian Grand Prix - Practice 2",
+      "source_id": "s5",
+      "source_name": "V Sport Motor",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp2%2Fv-sport-motor-sv"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp2",
+      "stream_name": "Belgian Grand Prix - Practice 2",
+      "source_id": "s6",
+      "source_name": "Viaplay",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp2%2Fviaplay-nl"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp3",
+      "stream_name": "Belgian Grand Prix - Practice 3",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp3"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp3",
+      "stream_name": "Belgian Grand Prix - Practice 3",
+      "source_id": "s2",
+      "source_name": "Apple TV (F1TV)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp3%2Ff1tv"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp3",
+      "stream_name": "Belgian Grand Prix - Practice 3",
+      "source_id": "s3",
+      "source_name": "DAZN F1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp3%2Fdazn-es"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp3",
+      "stream_name": "Belgian Grand Prix - Practice 3",
+      "source_id": "s4",
+      "source_name": "Sky Sport F1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp3%2Fsky-sport-f1-de"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp3",
+      "stream_name": "Belgian Grand Prix - Practice 3",
+      "source_id": "s5",
+      "source_name": "V Sport Motor",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp3%2Fv-sport-motor-sv"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/fp3",
+      "stream_name": "Belgian Grand Prix - Practice 3",
+      "source_id": "s6",
+      "source_name": "Viaplay",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Ffp3%2Fviaplay-nl"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/qualifying",
+      "stream_name": "Belgian Grand Prix - Qualifying",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Fqualifying"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/qualifying",
+      "stream_name": "Belgian Grand Prix - Qualifying",
+      "source_id": "s2",
+      "source_name": "Apple TV (F1TV)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Fqualifying%2Ff1tv"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/qualifying",
+      "stream_name": "Belgian Grand Prix - Qualifying",
+      "source_id": "s3",
+      "source_name": "DAZN F1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Fqualifying%2Fdazn-es"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/qualifying",
+      "stream_name": "Belgian Grand Prix - Qualifying",
+      "source_id": "s4",
+      "source_name": "Sky Sport F1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Fqualifying%2Fsky-sport-f1-de"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/qualifying",
+      "stream_name": "Belgian Grand Prix - Qualifying",
+      "source_id": "s5",
+      "source_name": "V Sport Motor",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Fqualifying%2Fv-sport-motor-sv"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/qualifying",
+      "stream_name": "Belgian Grand Prix - Qualifying",
+      "source_id": "s6",
+      "source_name": "Viaplay",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Fqualifying%2Fviaplay-nl"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/race",
+      "stream_name": "Belgian Grand Prix - Race",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Frace"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/race",
+      "stream_name": "Belgian Grand Prix - Race",
+      "source_id": "s2",
+      "source_name": "Apple TV (F1TV)",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Frace%2Ff1tv"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/race",
+      "stream_name": "Belgian Grand Prix - Race",
+      "source_id": "s3",
+      "source_name": "DAZN F1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Frace%2Fdazn-es"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/race",
+      "stream_name": "Belgian Grand Prix - Race",
+      "source_id": "s4",
+      "source_name": "Sky Sport F1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Frace%2Fsky-sport-f1-de"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/race",
+      "stream_name": "Belgian Grand Prix - Race",
+      "source_id": "s5",
+      "source_name": "V Sport Motor",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Frace%2Fv-sport-motor-sv"
+    },
+    {
+      "category": "motor-sports",
+      "stream_id": "f1/2026/belgium/race",
+      "stream_name": "Belgian Grand Prix - Race",
+      "source_id": "s6",
+      "source_name": "Viaplay",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=f1%2F2026%2Fbelgium%2Frace%2Fviaplay-nl"
+    },
+    {
+      "category": "rugby",
+      "stream_id": "nrl/2026-07-10/wes-new",
+      "stream_name": "Wests Tigers vs. Warriors",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nrl%2F2026-07-10%2Fwes-new"
+    },
+    {
+      "category": "rugby",
+      "stream_id": "nrl/2026-07-11/dol-cro",
+      "stream_name": "Dolphins vs. Sharks",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nrl%2F2026-07-11%2Fdol-cro"
+    },
+    {
+      "category": "rugby",
+      "stream_id": "nrl/2026-07-11/can-can",
+      "stream_name": "Bulldogs vs. Raiders",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nrl%2F2026-07-11%2Fcan-can"
+    },
+    {
+      "category": "rugby",
+      "stream_id": "nrl/2026-07-11/syd-par",
+      "stream_name": "Roosters vs. Eels",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nrl%2F2026-07-11%2Fsyd-par"
+    },
+    {
+      "category": "rugby",
+      "stream_id": "nrl/2026-07-12/sou-new",
+      "stream_name": "Rabbitohs vs. Knights",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nrl%2F2026-07-12%2Fsou-new"
+    },
+    {
+      "category": "rugby",
+      "stream_id": "nrl/2026-07-12/man-nor",
+      "stream_name": "Sea Eagles vs. Cowboys",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nrl%2F2026-07-12%2Fman-nor"
+    },
+    {
+      "category": "rugby",
+      "stream_id": "nrl/2026-07-12/mel-gol",
+      "stream_name": "Storm vs. Titans",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=nrl%2F2026-07-12%2Fmel-gol"
+    },
+    {
+      "category": "tennis",
+      "stream_id": "wimbledon/2026-07-10/aoyama-liang-dabrowski-stefani",
+      "stream_name": "Shuko Aoyama / En-Shuo Liang vs. Gabriela Dabrowski / Luisa Stefani",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wimbledon%2F2026-07-10%2Faoyama-liang-dabrowski-stefani"
+    },
+    {
+      "category": "tennis",
+      "stream_id": "wimbledon/2026-07-10/fery-zverev",
+      "stream_name": "Arthur Fery vs. Alexander Zverev",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wimbledon%2F2026-07-10%2Ffery-zverev"
+    },
+    {
+      "category": "tennis",
+      "stream_id": "wimbledon/2026-07-10/sinner-djokovic",
+      "stream_name": "Jannik Sinner vs. Novak Djokovic",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wimbledon%2F2026-07-10%2Fsinner-djokovic"
+    },
+    {
+      "category": "tennis",
+      "stream_id": "wimbledon/2026-07-10/hanyu-mladenovic-xinyu-yifan",
+      "stream_name": "Guo Hanyu / Kristina Mladenovic vs. Jiang Xinyu / Xu Yifan",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=wimbledon%2F2026-07-10%2Fhanyu-mladenovic-xinyu-yifan"
+    },
+    {
+      "category": "volleyball",
+      "stream_id": "womensvnl/2026-07-10/ukr-dom",
+      "stream_name": "Ukraine vs. Dominican Republic",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=womensvnl%2F2026-07-10%2Fukr-dom"
+    },
+    {
+      "category": "volleyball",
+      "stream_id": "womensvnl/2026-07-10/pol-bra",
+      "stream_name": "Poland vs. Brazil",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=womensvnl%2F2026-07-10%2Fpol-bra"
+    },
+    {
+      "category": "volleyball",
+      "stream_id": "womensvnl/2026-07-10/bel-ita",
+      "stream_name": "Belgium vs. Italy",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=womensvnl%2F2026-07-10%2Fbel-ita"
+    },
+    {
+      "category": "volleyball",
+      "stream_id": "womensvnl/2026-07-10/bul-cze",
+      "stream_name": "Bulgaria vs. Czechia",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=womensvnl%2F2026-07-10%2Fbul-cze"
+    },
+    {
+      "category": "volleyball",
+      "stream_id": "womensvnl/2026-07-10/ger-net",
+      "stream_name": "Germany vs. Netherlands",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=womensvnl%2F2026-07-10%2Fger-net"
+    },
+    {
+      "category": "24/7-streams",
+      "stream_id": "247-south-park",
+      "stream_name": "24/7 South Park",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=247-south-park"
+    },
+    {
+      "category": "24/7-streams",
+      "stream_id": "247-cows",
+      "stream_name": "24/7 COWS",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=247-cows"
+    },
+    {
+      "category": "24/7-streams",
+      "stream_id": "247-family-guy",
+      "stream_name": "24/7 Family Guy",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=247-family-guy"
+    },
+    {
+      "category": "24/7-streams",
+      "stream_id": "247-the-simpsons",
+      "stream_name": "24/7 The Simpsons",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=247-the-simpsons"
+    },
+    {
+      "category": "24/7-streams",
+      "stream_id": "247-spongebob-squarepants",
+      "stream_name": "24/7 SpongeBob Squarepants",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=247-spongebob-squarepants"
+    },
+    {
+      "category": "24/7-streams",
+      "stream_id": "rally-tv",
+      "stream_name": "Rally TV",
+      "source_id": "s1",
+      "source_name": "Server 1",
+      "source_type": "hls",
+      "embed_url": "https://dami-tv.pro/embed/?id=rally-tv"
+    }
+  ]
+}

@@ -54,4 +54,16 @@
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://sports.bustedminds.us.kg/tennis</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sports.bustedminds.us.kg/volleyball</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>

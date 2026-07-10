@@ -45,6 +45,8 @@ const baseballIconUrl = "/icons/sport-baseball.png";
 const basketballIconUrl = "/icons/sport-basketball.png";
 const fightIconUrl = "/icons/sport-fight.png";
 const cricketIconUrl = "/icons/sport-cricket.png";
+const tennisIconUrl = "/icons/sport-tennis.png";
+const volleyballIconUrl = "/icons/sport-volleyball.png";
 const genericSportIconUrl = "/icons/sport-generic.png";
 const homeThumbnailUrl = "/home-thumbnail.png";
 const lowerPriorityHosts = [
@@ -57,11 +59,21 @@ const lowerPriorityHosts = [
 ];
 const lowerPrioritySourceNames = ["fancode"];
 const defaultSportKey = "football";
-const featuredSportKeys = ["football", "baseball", "basketball", "fight", "cricket"];
+const featuredSportKeys = ["football", "baseball", "basketball", "fight", "cricket", "tennis", "volleyball"];
 type PageMode = "home" | "slate" | "scores";
 type StatusFilter = "all" | "live" | "upcoming";
 type NavigableStatus = Extract<StatusFilter, "live" | "upcoming">;
-type SearchScopeKey = "all" | "live" | "upcoming" | "football" | "baseball" | "basketball" | "fight" | "cricket";
+type SearchScopeKey =
+  | "all"
+  | "live"
+  | "upcoming"
+  | "football"
+  | "baseball"
+  | "basketball"
+  | "fight"
+  | "cricket"
+  | "tennis"
+  | "volleyball";
 type SlateStats = {
   live: number;
   upcoming: number;
@@ -82,7 +94,18 @@ type AppIcon = ComponentType<{
   "aria-hidden"?: boolean | "true" | "false";
 }>;
 type HeaderSportSummary = SportSummary & { iconSrc: string; accent: string };
-type SeoRouteKey = "home" | "live" | "schedule" | "scores" | "football" | "baseball" | "basketball" | "fight" | "cricket";
+type SeoRouteKey =
+  | "home"
+  | "live"
+  | "schedule"
+  | "scores"
+  | "football"
+  | "baseball"
+  | "basketball"
+  | "fight"
+  | "cricket"
+  | "tennis"
+  | "volleyball";
 type SeoRoute = {
   key: SeoRouteKey;
   path: string;
@@ -103,7 +126,7 @@ const seoRoutes: Record<SeoRouteKey, SeoRoute> = {
     statusFilter: "all",
     title: "Live Sports Streams, Scores & Match Schedule | Busted Minds Sports",
     description:
-      "Busted Minds Sports brings live football, baseball, basketball, fight and cricket streams, match schedules, live scores, and multi-feed game coverage into one fast sports hub.",
+      "Busted Minds Sports brings live football, baseball, basketball, fight, cricket, tennis and volleyball streams, match schedules, live scores, and multi-feed game coverage into one fast sports hub.",
   },
   live: {
     key: "live",
@@ -113,7 +136,7 @@ const seoRoutes: Record<SeoRouteKey, SeoRoute> = {
     statusFilter: "live",
     title: "Live Sports Streams Today | Busted Minds Sports",
     description:
-      "Watch live football, baseball, basketball, fight and cricket streams with available feeds, game status, stream health signals, and quick access to live match coverage.",
+      "Watch live football, baseball, basketball, fight, cricket, tennis and volleyball streams with available feeds, game status, stream health signals, and quick access to live match coverage.",
   },
   schedule: {
     key: "schedule",
@@ -123,7 +146,7 @@ const seoRoutes: Record<SeoRouteKey, SeoRoute> = {
     statusFilter: "upcoming",
     title: "Sports Match Schedule & Upcoming Games | Busted Minds Sports",
     description:
-      "See upcoming football, baseball, basketball, fight and cricket fixtures, match times, and leagues before the next game goes live.",
+      "See upcoming football, baseball, basketball, fight, cricket, tennis and volleyball fixtures, match times, and leagues before the next game goes live.",
   },
   scores: {
     key: "scores",
@@ -184,6 +207,26 @@ const seoRoutes: Record<SeoRouteKey, SeoRoute> = {
     title: "Cricket Live Streams, Scores & Fixtures | Busted Minds Sports",
     description:
       "Find cricket live streams, match feeds, scores, schedules, and competition coverage from Busted Minds Sports.",
+  },
+  tennis: {
+    key: "tennis",
+    path: "/tennis",
+    pageMode: "slate",
+    sportFilter: "tennis",
+    statusFilter: "all",
+    title: "Tennis Live Streams, Matches & Schedule | Busted Minds Sports",
+    description:
+      "Find tennis live streams, tournament match feeds, upcoming fixtures, and available court coverage from Busted Minds Sports.",
+  },
+  volleyball: {
+    key: "volleyball",
+    path: "/volleyball",
+    pageMode: "slate",
+    sportFilter: "volleyball",
+    statusFilter: "all",
+    title: "Volleyball Live Streams, Matches & Schedule | Busted Minds Sports",
+    description:
+      "Find volleyball live streams, league and tournament match feeds, upcoming fixtures, and available coverage from Busted Minds Sports.",
   },
 };
 
@@ -285,6 +328,16 @@ export default function App() {
         ...sportSummaryOrFallback("cricket", "Cricket", sportSummaries),
         iconSrc: cricketIconUrl,
         accent: "cricket",
+      },
+      {
+        ...sportSummaryOrFallback("tennis", "Tennis", sportSummaries),
+        iconSrc: tennisIconUrl,
+        accent: "tennis",
+      },
+      {
+        ...sportSummaryOrFallback("volleyball", "Volleyball", sportSummaries),
+        iconSrc: volleyballIconUrl,
+        accent: "volleyball",
       },
     ],
     [sportSummaries],
@@ -1057,6 +1110,18 @@ export default function App() {
                       count={searchStats.cricket}
                       active={sportFilter === "cricket" && statusFilter === "all"}
                       onClick={() => applySearchScope("cricket")}
+                    />
+                    <SearchScopeButton
+                      label="Tennis"
+                      count={searchStats.tennis}
+                      active={sportFilter === "tennis" && statusFilter === "all"}
+                      onClick={() => applySearchScope("tennis")}
+                    />
+                    <SearchScopeButton
+                      label="Volleyball"
+                      count={searchStats.volleyball}
+                      active={sportFilter === "volleyball" && statusFilter === "all"}
+                      onClick={() => applySearchScope("volleyball")}
                     />
                   </div>
                   <button type="button" className="clear-filters" onClick={clearSearch}>
@@ -3353,6 +3418,8 @@ function seoRouteFromState(
   if (sportFilter === "basketball") return seoRoutes.basketball;
   if (sportFilter === "fight") return seoRoutes.fight;
   if (sportFilter === "cricket") return seoRoutes.cricket;
+  if (sportFilter === "tennis") return seoRoutes.tennis;
+  if (sportFilter === "volleyball") return seoRoutes.volleyball;
   if (statusFilter === "live") return seoRoutes.live;
   if (statusFilter === "upcoming") return seoRoutes.schedule;
   return seoRoutes.home;
@@ -3483,6 +3550,8 @@ function sportIconForKey(key: string) {
   if (visualKey === "basketball") return basketballIconUrl;
   if (visualKey === "fight") return fightIconUrl;
   if (visualKey === "cricket") return cricketIconUrl;
+  if (visualKey === "tennis") return tennisIconUrl;
+  if (visualKey === "volleyball") return volleyballIconUrl;
   return genericSportIconUrl;
 }
 
@@ -3497,6 +3566,8 @@ function sportVisualKey(key: string) {
   if (normalized.includes("basketball") || normalized.includes("nba") || normalized.includes("wnba")) return "basketball";
   if (normalized.includes("fight") || normalized.includes("boxing") || normalized.includes("mma") || normalized.includes("wwe") || normalized.includes("aew") || normalized.includes("wrestling")) return "fight";
   if (normalized.includes("cricket")) return "cricket";
+  if (normalized.includes("tennis") || normalized.includes("atp") || normalized.includes("wta")) return "tennis";
+  if (normalized.includes("volleyball")) return "volleyball";
   return "generic";
 }
 
@@ -3505,6 +3576,8 @@ function sportRouteForKey(sportKey: string) {
   if (sportKey === "basketball") return seoRoutes.basketball;
   if (sportKey === "fight") return seoRoutes.fight;
   if (sportKey === "cricket") return seoRoutes.cricket;
+  if (sportKey === "tennis") return seoRoutes.tennis;
+  if (sportKey === "volleyball") return seoRoutes.volleyball;
   return seoRoutes.football;
 }
 
@@ -3674,9 +3747,22 @@ function searchResultStats(matches: Match[]) {
       if (match.sportKey === "basketball") stats.basketball += 1;
       if (match.sportKey === "fight") stats.fight += 1;
       if (match.sportKey === "cricket") stats.cricket += 1;
+      if (match.sportKey === "tennis") stats.tennis += 1;
+      if (match.sportKey === "volleyball") stats.volleyball += 1;
       return stats;
     },
-    { total: 0, live: 0, upcoming: 0, football: 0, baseball: 0, basketball: 0, fight: 0, cricket: 0 },
+    {
+      total: 0,
+      live: 0,
+      upcoming: 0,
+      football: 0,
+      baseball: 0,
+      basketball: 0,
+      fight: 0,
+      cricket: 0,
+      tennis: 0,
+      volleyball: 0,
+    },
   );
 }
 

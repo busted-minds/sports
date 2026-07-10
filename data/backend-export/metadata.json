@@ -1,0 +1,29 @@
+{
+  "exported_at": "2026-07-10T16:53:55.376Z",
+  "source": {
+    "supabase_project_ref": "ppozinjnhhfaerswjpuz",
+    "catalog_url": "https://sportsx-26.vercel.app/api/dami"
+  },
+  "counts": {
+    "supabase_servers": 12,
+    "supabase_matches": 8,
+    "catalog_categories": 12,
+    "catalog_streams": 84,
+    "backend_source_records": 146
+  },
+  "catalog_categories": {
+    "american-football": 7,
+    "afl": 8,
+    "baseball": 15,
+    "basketball": 19,
+    "fight": 3,
+    "football": 3,
+    "miscellaneous": 2,
+    "motor-sports": 5,
+    "rugby": 7,
+    "tennis": 4,
+    "volleyball": 5,
+    "24/7-streams": 6
+  },
+  "catalog_sha256": "601b12451b7fba96f4b23f9efea8e6ec329f94fde1132af953dac83936b95f44"
+}
