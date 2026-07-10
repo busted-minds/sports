@@ -93,18 +93,33 @@ export function useSportScore() {
 
   useEffect(() => {
     let active = true;
+    let inFlight = false;
 
     const tick = async (silent = false) => {
-      if (!active) return;
-      await refresh(silent);
+      if (!active || inFlight) return;
+      inFlight = true;
+      try {
+        await refresh(silent);
+      } finally {
+        inFlight = false;
+      }
+    };
+
+    const refreshIfActive = () => {
+      if (document.visibilityState === "hidden" || !navigator.onLine) return;
+      void tick(true);
     };
 
     void tick(Boolean(readCache()));
-    const intervalId = window.setInterval(() => void tick(true), refreshIntervalMs);
+    const intervalId = window.setInterval(refreshIfActive, refreshIntervalMs);
+    document.addEventListener("visibilitychange", refreshIfActive);
+    window.addEventListener("online", refreshIfActive);
 
     return () => {
       active = false;
       window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", refreshIfActive);
+      window.removeEventListener("online", refreshIfActive);
     };
   }, [refresh]);
 
@@ -169,6 +184,15 @@ export function useSportScoreInsight(match: SportScoreMatch | null) {
       requestRef.current = controller;
 
       try {
+        const results = await Promise.allSettled([
+          fetchSportScoreMatchDetail(match, controller.signal),
+          fetchSportScoreStandings(match.sport, match.competitionSlug, controller.signal),
+          fetchSportScoreLeaders(match.sport, match.competitionSlug, "goals", controller.signal),
+          fetchSportScoreLeaders(match.sport, match.competitionSlug, "assists", controller.signal),
+          fetchSportScoreTeamSchedule(match.sport, match.homeTeamSlug, controller.signal),
+          fetchSportScoreTeamSchedule(match.sport, match.awayTeamSlug, controller.signal),
+          fetchSportScoreBracket(match.sport, match.competitionSlug, controller.signal),
+        ] as const);
         const [
           detailResult,
           standingsResult,
@@ -177,16 +201,14 @@ export function useSportScoreInsight(match: SportScoreMatch | null) {
           homeScheduleResult,
           awayScheduleResult,
           bracketResult,
-        ] = await Promise.allSettled([
-          fetchSportScoreMatchDetail(match, controller.signal),
-          fetchSportScoreStandings(match.sport, match.competitionSlug, controller.signal),
-          fetchSportScoreLeaders(match.sport, match.competitionSlug, "goals", controller.signal),
-          fetchSportScoreLeaders(match.sport, match.competitionSlug, "assists", controller.signal),
-          fetchSportScoreTeamSchedule(match.sport, match.homeTeamSlug, controller.signal),
-          fetchSportScoreTeamSchedule(match.sport, match.awayTeamSlug, controller.signal),
-          fetchSportScoreBracket(match.sport, match.competitionSlug, controller.signal),
-        ]);
+        ] = results;
         if (controller.signal.aborted || !mountedRef.current) return;
+
+        const failedResults = results.filter((result) => result.status === "rejected");
+        if (failedResults.length === results.length) {
+          const firstFailure = failedResults[0]?.reason;
+          throw firstFailure instanceof Error ? firstFailure : new Error("Score details request failed");
+        }
 
         const insight: SportScoreInsight = {
           detail: fulfilledValue(detailResult),
@@ -200,7 +222,14 @@ export function useSportScoreInsight(match: SportScoreMatch | null) {
         };
 
         writeInsightCache(key, insight);
-        setState({ insight, loading: false, error: "", fromCache: false });
+        setState({
+          insight,
+          loading: false,
+          error: failedResults.length
+            ? `Some match details are unavailable (${failedResults.length} of ${results.length}).`
+            : "",
+          fromCache: false,
+        });
       } catch (error) {
         if (controller.signal.aborted || !mountedRef.current) return;
         const message = error instanceof Error ? error.message : "Score details request failed";
@@ -281,6 +310,7 @@ function writeInsightCache(key: string, insight: SportScoreInsight) {
   try {
     const rawValue = window.localStorage.getItem(insightCacheKey);
     const parsed = rawValue ? (JSON.parse(rawValue) as Record<string, SportScoreInsight>) : {};
+    delete parsed[key];
     const entries = Object.entries({ ...parsed, [key]: insight }).slice(-16);
     window.localStorage.setItem(insightCacheKey, JSON.stringify(Object.fromEntries(entries)));
   } catch {

@@ -111,12 +111,10 @@ const fallbackServers: Record<string, Array<{ name: string; url: string }>> = {
 };
 const supabaseUrl =
   import.meta.env.VITE_SPORTS_SUPABASE_URL || "https://ppozinjnhhfaerswjpuz.supabase.co";
-const supabaseAnonKey =
-  import.meta.env.VITE_SPORTS_SUPABASE_ANON_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwb3ppbmpuaGhmYWVyc3dqcHV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NDI5MTQsImV4cCI6MjA5NzIxODkxNH0.ZQUJ1QlrJZLexjE9MQTv4-0F1mxOsfxwNZygYel3CWY";
+const supabaseAnonKey = import.meta.env.VITE_SPORTS_SUPABASE_ANON_KEY;
 
 export const defaultCatalogUrl =
-  import.meta.env.VITE_SPORTS_CATALOG_URL || "https://sportsx-26.vercel.app/api/dami";
+  import.meta.env.VITE_SPORTS_CATALOG_URL || "/api/catalog";
 
 export async function fetchCatalog(endpoint = defaultCatalogUrl, signal?: AbortSignal): Promise<Match[]> {
   const [damiMatches, serverResult, dbMatchResult] = await Promise.all([

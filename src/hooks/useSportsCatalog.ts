@@ -75,18 +75,33 @@ export function useSportsCatalog(endpoint = defaultCatalogUrl) {
 
   useEffect(() => {
     let active = true;
+    let inFlight = false;
 
     const tick = async (silent = false) => {
-      if (!active) return;
-      await refresh(silent);
+      if (!active || inFlight) return;
+      inFlight = true;
+      try {
+        await refresh(silent);
+      } finally {
+        inFlight = false;
+      }
+    };
+
+    const refreshIfActive = () => {
+      if (document.visibilityState === "hidden" || !navigator.onLine) return;
+      void tick(true);
     };
 
     void tick(Boolean(readCache()));
-    const intervalId = window.setInterval(() => void tick(true), 60_000);
+    const intervalId = window.setInterval(refreshIfActive, 60_000);
+    document.addEventListener("visibilitychange", refreshIfActive);
+    window.addEventListener("online", refreshIfActive);
 
     return () => {
       active = false;
       window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", refreshIfActive);
+      window.removeEventListener("online", refreshIfActive);
     };
   }, [refresh]);
 

@@ -13,11 +13,86 @@ const allowedApiOriginsByHost = new Map([
     ]),
   ],
   ["foott.vercel.app", new Set(["https://footsters-tv.pages.dev"])],
+  [
+    "football-main-one.vercel.app",
+    new Set(["https://footsters-live.pages.dev", "https://footsterss.pages.dev"]),
+  ],
 ]);
 
 export default defineConfig({
   plugins: [
     react(),
+    {
+      name: "local-catalog-api",
+      configureServer(server) {
+        server.middlewares.use(
+          "/api/catalog",
+          async (request: IncomingMessage, response: ServerResponse) => {
+            response.setHeader("access-control-allow-origin", "*");
+            response.setHeader("access-control-allow-methods", "GET,HEAD,OPTIONS");
+
+            if (request.method === "OPTIONS") {
+              response.statusCode = 204;
+              response.end();
+              return;
+            }
+
+            if (request.method !== "GET" && request.method !== "HEAD") {
+              response.statusCode = 405;
+              response.setHeader("allow", "GET, HEAD, OPTIONS");
+              response.setHeader("content-type", "application/json; charset=utf-8");
+              response.end(JSON.stringify({ error: "Method not allowed" }));
+              return;
+            }
+
+            const upstreamUrl =
+              process.env.SPORTS_CATALOG_UPSTREAM_URL ||
+              "https://sportsx-26.vercel.app/api/dami";
+
+            try {
+              const upstream = await fetch(upstreamUrl, {
+                headers: {
+                  Accept: "application/json",
+                  "User-Agent": "busted-minds-sports/0.1 local-catalog-fetcher",
+                },
+                signal: AbortSignal.timeout(10_000),
+              });
+              if (!upstream.ok) {
+                response.statusCode = 502;
+                response.setHeader("content-type", "application/json; charset=utf-8");
+                response.end(
+                  JSON.stringify({ error: `Catalog upstream returned HTTP ${upstream.status}` }),
+                );
+                return;
+              }
+
+              const payload = (await upstream.json()) as { streams?: unknown };
+              if (!payload || !Array.isArray(payload.streams)) {
+                response.statusCode = 502;
+                response.setHeader("content-type", "application/json; charset=utf-8");
+                response.end(
+                  JSON.stringify({ error: "Catalog upstream returned an invalid payload" }),
+                );
+                return;
+              }
+
+              response.statusCode = 200;
+              response.setHeader("content-type", "application/json; charset=utf-8");
+              response.setHeader("cache-control", "no-store");
+              if (request.method === "HEAD") {
+                response.end();
+                return;
+              }
+              response.end(JSON.stringify(payload));
+            } catch (error) {
+              response.statusCode = error instanceof Error && error.name === "TimeoutError" ? 504 : 502;
+              response.setHeader("content-type", "application/json; charset=utf-8");
+              response.end(JSON.stringify({ error: "Catalog upstream request failed" }));
+            }
+          },
+        );
+      },
+    },
     {
       name: "local-stream-proxy",
       configureServer(server) {
@@ -185,6 +260,14 @@ function rewriteFootstersApiUrls(html: string, pageUrl: URL) {
     .replaceAll(
       "https://foott.vercel.app/api/op",
       proxiedApiUrl("https://foott.vercel.app/api/op", pageOrigin),
+    )
+    .replaceAll(
+      "https://foott.vercel.app/api/events",
+      proxiedApiUrl("https://foott.vercel.app/api/events", pageOrigin),
+    )
+    .replaceAll(
+      "https://football-main-one.vercel.app/main",
+      proxiedApiUrl("https://football-main-one.vercel.app/main", pageOrigin),
     );
 }
 

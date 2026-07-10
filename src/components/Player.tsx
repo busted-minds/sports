@@ -21,6 +21,7 @@ type PlayerProps = {
 export function Player({ match, source, canUseNextSource = false, onNextSource }: PlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoError, setVideoError] = useState("");
+  const [retryNonce, setRetryNonce] = useState(0);
   const [videoState, setVideoState] = useState<"loading" | "playing" | "waiting" | "error">(
     "loading",
   );
@@ -36,7 +37,7 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
       setIframeState((currentState) => (currentState === "loading" ? "slow" : currentState));
     }, 5500);
     return () => window.clearTimeout(timeoutId);
-  }, [source?.kind, source?.url]);
+  }, [retryNonce, source?.kind, source?.url]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -48,6 +49,8 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
 
     let hls: Hls | null = null;
     let disposed = false;
+    let networkRecoveryAttempts = 0;
+    let mediaRecoveryAttempts = 0;
     const playbackUrl = proxiedMediaUrl(source.playbackUrl);
     video.pause();
     video.removeAttribute("src");
@@ -66,8 +69,21 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
           }
 
           hls = new HlsPlayer({ lowLatencyMode: true, backBufferLength: 90 });
-          hls.on(HlsPlayer.Events.ERROR, (_event, data: { fatal?: boolean }) => {
+          hls.on(HlsPlayer.Events.ERROR, (_event, data: { fatal?: boolean; type?: string }) => {
             if (!data.fatal || disposed) return;
+
+            if (data.type === HlsPlayer.ErrorTypes.NETWORK_ERROR && networkRecoveryAttempts < 1) {
+              networkRecoveryAttempts += 1;
+              hls?.startLoad();
+              return;
+            }
+
+            if (data.type === HlsPlayer.ErrorTypes.MEDIA_ERROR && mediaRecoveryAttempts < 1) {
+              mediaRecoveryAttempts += 1;
+              hls?.recoverMediaError();
+              return;
+            }
+
             setVideoState("error");
             setVideoError("Playback failed for this source.");
           });
@@ -89,15 +105,33 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
         return;
       });
     };
+    const loadTimeoutId = window.setTimeout(() => {
+      if (disposed || video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) return;
+      setVideoState("error");
+      setVideoError("This source is taking too long to respond.");
+    }, 15_000);
+    const clearLoadTimeout = () => window.clearTimeout(loadTimeoutId);
 
     video.addEventListener("canplay", play);
+    video.addEventListener("canplay", clearLoadTimeout);
+    video.addEventListener("playing", clearLoadTimeout);
 
     return () => {
       disposed = true;
       video.removeEventListener("canplay", play);
+      video.removeEventListener("canplay", clearLoadTimeout);
+      video.removeEventListener("playing", clearLoadTimeout);
+      window.clearTimeout(loadTimeoutId);
       hls?.destroy();
     };
-  }, [source]);
+  }, [retryNonce, source]);
+
+  const retryCurrentSource = () => {
+    setIframeState("loading");
+    setVideoError("");
+    setVideoState("loading");
+    setRetryNonce((current) => current + 1);
+  };
 
   if (!match || !source) {
     return (
@@ -123,7 +157,7 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
     return (
       <div className="player-viewport">
         <iframe
-          key={source.url}
+          key={`${source.url}:${retryNonce}`}
           src={iframeSource.url}
           title={`${match.name} stream`}
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture; accelerometer; gyroscope"
@@ -143,6 +177,10 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
               </span>
             </div>
             <div className="player-actions">
+              <button type="button" onClick={retryCurrentSource}>
+                <RotateCcw size={15} aria-hidden="true" />
+                Retry
+              </button>
               {canUseNextSource ? (
                 <button type="button" onClick={onNextSource}>
                   <RotateCcw size={15} aria-hidden="true" />
@@ -170,9 +208,15 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
           muted
           playsInline
           poster={match.poster || undefined}
-          onCanPlay={() => setVideoState("playing")}
+          onCanPlay={() => {
+            setVideoError("");
+            setVideoState("playing");
+          }}
           onLoadStart={() => setVideoState("loading")}
-          onPlaying={() => setVideoState("playing")}
+          onPlaying={() => {
+            setVideoError("");
+            setVideoState("playing");
+          }}
           onWaiting={() => setVideoState("waiting")}
           onError={() => {
             setVideoState("error");
@@ -180,15 +224,18 @@ export function Player({ match, source, canUseNextSource = false, onNextSource }
           }}
         />
         {!videoError && videoState !== "playing" ? (
-          <div className="player-buffering">
+          <div className="player-buffering" role="status" aria-live="polite">
             <Loader2 className="spin" size={18} aria-hidden="true" />
             <span>{videoState === "waiting" ? "Buffering stream" : "Loading stream"}</span>
           </div>
         ) : null}
         {videoError ? (
-          <div className="player-alert">
+          <div className="player-alert" role="alert">
             <AlertTriangle size={16} aria-hidden="true" />
             <span>{videoError}</span>
+            <button type="button" onClick={retryCurrentSource}>
+              Retry
+            </button>
             {canUseNextSource ? (
               <button type="button" onClick={onNextSource}>
                 Next server

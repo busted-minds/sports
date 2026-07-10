@@ -12857,3 +12857,129 @@ a:focus-visible {
     font-size: 0.92rem;
   }
 }
+
+/* Product polish: keyboard navigation, search shortcut, and resilient player actions. */
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 200;
+  padding: 10px 14px;
+  border: 1px solid rgba(66, 214, 255, 0.55);
+  border-radius: 9px;
+  color: #071014;
+  background: var(--cyan);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.42);
+  font-size: 0.82rem;
+  font-weight: 900;
+  transform: translateY(calc(-100% - 20px));
+  transition: transform 0.18s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.search-shortcut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(210, 219, 225, 0.15);
+  border-radius: 6px;
+  color: #aeb8c0;
+  background: rgba(255, 255, 255, 0.055);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.header-search:focus-within .search-shortcut {
+  color: #e8f8ff;
+  border-color: rgba(66, 214, 255, 0.36);
+  background: rgba(66, 214, 255, 0.1);
+}
+
+.player-alert {
+  z-index: 3;
+  flex-wrap: wrap;
+}
+
+.player-alert > span {
+  min-width: 140px;
+  flex: 1 1 auto;
+}
+
+.player-share-button {
+  gap: 6px;
+  min-width: 76px;
+}
+
+.player-share-button svg {
+  flex: 0 0 auto;
+}
+
+.topline-button-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 820px) {
+  .search-shortcut {
+    display: none;
+  }
+
+  .mobile-more-menu.is-sports .mobile-more-action:first-child svg {
+    width: 24px;
+    height: 24px;
+    padding: 3px;
+    border-radius: 9px;
+    color: #cbd4db;
+    background: rgba(255, 255, 255, 0.055);
+  }
+
+  .mobile-more-menu.is-sports .mobile-more-action:first-child:hover svg,
+  .mobile-more-menu.is-sports .mobile-more-action:first-child.is-active svg {
+    color: var(--cyan);
+    background: rgba(66, 214, 255, 0.1);
+  }
+
+  .player-alert {
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .topline-actions .source-kind {
+    max-width: calc(100vw - 166px);
+  }
+
+  .player-share-button {
+    width: 32px;
+    min-width: 32px;
+    padding: 0;
+  }
+
+  .player-share-button span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
+}

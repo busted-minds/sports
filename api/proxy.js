@@ -23,6 +23,10 @@ const allowedApiOriginsByHost = new Map([
     ]),
   ],
   ["foott.vercel.app", new Set(["https://footsters-tv.pages.dev"])],
+  [
+    "football-main-one.vercel.app",
+    new Set(["https://footsters-live.pages.dev", "https://footsterss.pages.dev"]),
+  ],
 ]);
 
 export default async function handler(request, response) {
@@ -172,6 +176,14 @@ function rewriteFootstersApiUrls(html, pageUrl) {
     .replaceAll(
       "https://foott.vercel.app/api/op",
       proxiedApiUrl("https://foott.vercel.app/api/op", pageOrigin),
+    )
+    .replaceAll(
+      "https://foott.vercel.app/api/events",
+      proxiedApiUrl("https://foott.vercel.app/api/events", pageOrigin),
+    )
+    .replaceAll(
+      "https://football-main-one.vercel.app/main",
+      proxiedApiUrl("https://football-main-one.vercel.app/main", pageOrigin),
     );
 }
 

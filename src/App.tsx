@@ -2,12 +2,14 @@ import {
   Activity,
   AlertTriangle,
   CalendarDays,
+  Check,
   ChevronRight,
   Clock3,
   ExternalLink,
   RefreshCw,
   Search,
   Server,
+  Share2,
   ShieldCheck,
   Trophy,
   Users,
@@ -197,7 +199,9 @@ export default function App() {
     refresh: refreshScores,
   } = useSportScore();
   const [selectedId, setSelectedId] = useState("");
+  const [requestedMatchId, setRequestedMatchId] = useState(() => currentMatchIdFromUrl());
   const [sourceIndex, setSourceIndex] = useState(0);
+  const [shareFeedback, setShareFeedback] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
@@ -207,6 +211,8 @@ export default function App() {
   const [pageMode, setPageMode] = useState<PageMode>(initialSeoRoute.pageMode);
   const playerSectionRef = useRef<HTMLDivElement | null>(null);
   const sportsMenuRef = useRef<HTMLDivElement | null>(null);
+  const headerSearchRef = useRef<HTMLInputElement | null>(null);
+  const mobileSearchRef = useRef<HTMLInputElement | null>(null);
 
   const games = useMemo(
     () => matches.filter((match) => match.status === "live" || match.status === "upcoming"),
@@ -337,12 +343,13 @@ export default function App() {
   const searchActive = Boolean(normalizedSearch);
   const homePageActive = pageMode === "home";
   const livePageActive = pageMode === "slate" && sportFilter === "all" && statusFilter === "live";
+  const schedulePageActive = pageMode === "slate" && sportFilter === "all" && statusFilter === "upcoming";
   const scoresPageActive = pageMode === "scores";
   const sportsPageActive = pageMode === "slate" && statusFilter === "all" && featuredSportKeys.includes(sportFilter);
   const activeSportSummary = sportsPageActive
     ? sportFocusItems.find((sport) => sport.key === sportFilter) ?? null
     : null;
-  const mobileMoreActive = sportsPageActive;
+  const mobileMoreActive = sportsPageActive || schedulePageActive;
   const queueTitle = pageQueueTitle(sportFilter, statusFilter, sportSummaries);
   const pageScope = pageScopeLabel(sportFilter, statusFilter, sportSummaries);
   const currentSeoRoute = useMemo(
@@ -358,17 +365,47 @@ export default function App() {
       if (!(target instanceof Node)) return;
       if (!sportsMenuRef.current?.contains(target)) setSportsMenuOpen(false);
     };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSportsMenuOpen(false);
-    };
-
     document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [sportsMenuOpen]);
+
+  useEffect(() => {
+    const handleSearchShortcut = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileSearchOpen(false);
+        setMobileMoreOpen(false);
+        setSportsMenuOpen(false);
+        return;
+      }
+
+      if (event.key !== "/" || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      if (window.matchMedia("(max-width: 820px)").matches) {
+        setMobileMoreOpen(false);
+        setSportsMenuOpen(false);
+        setMobileSearchOpen(true);
+        window.requestAnimationFrame(() => mobileSearchRef.current?.focus());
+        return;
+      }
+
+      headerSearchRef.current?.focus();
+    };
+
+    window.addEventListener("keydown", handleSearchShortcut);
+    return () => window.removeEventListener("keydown", handleSearchShortcut);
+  }, []);
 
   useEffect(() => {
     applyDocumentSeo(currentSeoRoute);
@@ -382,12 +419,23 @@ export default function App() {
 
     const visibleGames = searchActive ? games : pageGames.length ? pageGames : games;
     const selectableGames = visibleGames.filter(isStreamSelectable);
+    const requestedMatch = requestedMatchId
+      ? selectableGames.find((match) => match.id === requestedMatchId)
+      : null;
+    if (requestedMatch) {
+      if (selectedId !== requestedMatch.id) setSelectedId(requestedMatch.id);
+      return;
+    }
     if (selectedId && selectableGames.some((match) => match.id === selectedId)) return;
 
     const nextMatch = pickPreferredMatch(selectableGames, defaultSportKey);
     if (nextMatch) setSelectedId(nextMatch.id);
     else if (selectedId) setSelectedId("");
-  }, [games, pageGames, searchActive, selectedId]);
+  }, [games, pageGames, requestedMatchId, searchActive, selectedId]);
+
+  useEffect(() => {
+    setShareFeedback("");
+  }, [selectedMatch?.id]);
 
   useEffect(() => {
     if (sportFilter === "all") return;
@@ -431,7 +479,7 @@ export default function App() {
     return pickPreferredMatch(routeGames, preferredSport)?.id ?? "";
   };
 
-  const applySeoRouteState = (route: SeoRoute) => {
+  const applySeoRouteState = (route: SeoRoute, matchId = "") => {
     setPageMode(route.pageMode);
     setSearchTerm("");
     setMobileSearchOpen(false);
@@ -439,7 +487,8 @@ export default function App() {
     setSportsMenuOpen(false);
     setSportFilter(route.sportFilter);
     setStatusFilter(route.statusFilter);
-    setSelectedId(routeMatchId(route));
+    setRequestedMatchId(matchId);
+    setSelectedId(matchId || routeMatchId(route));
   };
 
   const openSeoRoute = (routeKey: SeoRouteKey) => {
@@ -491,7 +540,8 @@ export default function App() {
   const openMatch = (match: Match) => {
     if (!isStreamSelectable(match)) return;
 
-    writeBrowserRoute(seoRoutes.live, "push");
+    writeBrowserRoute(seoRoutes.live, "push", match.id);
+    setRequestedMatchId(match.id);
     setSelectedId(match.id);
     setSearchTerm("");
     setMobileSearchOpen(false);
@@ -506,8 +556,43 @@ export default function App() {
   const selectMatchFromList = (match: Match) => {
     if (!isStreamSelectable(match)) return;
 
+    const browserRoute = seoRouteFromPath(currentPathname());
+    if (browserRoute.pageMode === "slate") {
+      writeBrowserRoute(browserRoute, "replace", match.id);
+    } else {
+      writeBrowserRoute(seoRoutes.live, "replace", match.id);
+      setStatusFilter("live");
+      setSportFilter("all");
+    }
+    setRequestedMatchId(match.id);
     setSelectedId(match.id);
     showPlayerOnMobile();
+  };
+
+  const shareSelectedMatch = async () => {
+    if (!selectedMatch || typeof window === "undefined") return;
+
+    const shareUrl = new URL(seoRoutes.live.path, window.location.origin);
+    shareUrl.searchParams.set("match", selectedMatch.id);
+    const shareData = {
+      title: `${matchTitle(selectedMatch)} | Busted Minds Sports`,
+      text: `Watch ${matchTitle(selectedMatch)} on Busted Minds Sports.`,
+      url: shareUrl.toString(),
+    };
+
+    try {
+      if (typeof navigator.share === "function") {
+        await navigator.share(shareData);
+        setShareFeedback("Shared");
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareData.url);
+      setShareFeedback("Copied");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setShareFeedback(copyTextFallback(shareData.url) ? "Copied" : "Copy failed");
+    }
   };
 
   const showPlayerOnMobile = () => {
@@ -525,7 +610,7 @@ export default function App() {
     if (typeof window === "undefined") return;
 
     const handlePopState = () => {
-      applySeoRouteState(seoRouteFromPath(currentPathname()));
+      applySeoRouteState(seoRouteFromPath(currentPathname()), currentMatchIdFromUrl());
     };
 
     window.addEventListener("popstate", handlePopState);
@@ -567,6 +652,9 @@ export default function App() {
 
   return (
     <div className={searchActive ? "app-shell is-searching" : "app-shell"}>
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <header className="topbar">
         <div className="brand-lockup">
           <a
@@ -600,6 +688,13 @@ export default function App() {
                 onClick={() => openStatusPage("live")}
               />
               <HeaderNavButton
+                icon={NextNavIcon}
+                label="Schedule"
+                href={seoRoutes.schedule.path}
+                active={schedulePageActive}
+                onClick={() => openStatusPage("upcoming")}
+              />
+              <HeaderNavButton
                 icon={Activity}
                 label="Scores"
                 href={seoRoutes.scores.path}
@@ -622,6 +717,7 @@ export default function App() {
           <label className="search-box header-search">
             <Search size={16} aria-hidden="true" />
             <input
+              ref={headerSearchRef}
               type="search"
               value={searchTerm}
               onChange={(event) => handleSearchChange(event.target.value)}
@@ -629,6 +725,7 @@ export default function App() {
               aria-label="Search games"
               autoComplete="off"
               enterKeyHint="search"
+              aria-keyshortcuts="/"
             />
             {searchTerm ? (
               <button
@@ -639,7 +736,11 @@ export default function App() {
               >
                 <X size={14} aria-hidden="true" />
               </button>
-            ) : null}
+            ) : (
+              <kbd className="search-shortcut" aria-hidden="true">
+                /
+              </kbd>
+            )}
           </label>
         </div>
 
@@ -661,6 +762,7 @@ export default function App() {
             <label className="search-box mobile-search-box">
               <Search size={16} aria-hidden="true" />
               <input
+                ref={mobileSearchRef}
                 type="search"
                 value={searchTerm}
                 onChange={(event) => handleSearchChange(event.target.value)}
@@ -698,7 +800,7 @@ export default function App() {
         ) : null}
       </header>
 
-      <main className="app-main">
+      <main id="main-content" className="app-main" tabIndex={-1}>
         <section className="content-area">
           {error || fromCache ? (
             <CatalogNotice
@@ -751,10 +853,31 @@ export default function App() {
                         ? `${sourceKindLabel(selectedSource.kind)} · ${sourceDisplayName(selectedSource)}`
                         : "No source"}
                     </span>
-                    {hasNextSource ? (
-                      <button type="button" className="mini-button" onClick={useNextSource}>
-                        Next
-                      </button>
+                    {selectedMatch || hasNextSource ? (
+                      <span className="topline-button-group">
+                        {selectedMatch ? (
+                          <button
+                            type="button"
+                            className="mini-button player-share-button"
+                            onClick={() => void shareSelectedMatch()}
+                            aria-label={`Share ${matchTitle(selectedMatch)}`}
+                            aria-live="polite"
+                            title="Share this live match"
+                          >
+                            {shareFeedback === "Copied" || shareFeedback === "Shared" ? (
+                              <Check size={14} aria-hidden="true" />
+                            ) : (
+                              <Share2 size={14} aria-hidden="true" />
+                            )}
+                            <span>{shareFeedback || "Share"}</span>
+                          </button>
+                        ) : null}
+                        {hasNextSource ? (
+                          <button type="button" className="mini-button" onClick={useNextSource}>
+                            Next
+                          </button>
+                        ) : null}
+                      </span>
                     ) : null}
                   </div>
                 </div>
@@ -1057,7 +1180,17 @@ export default function App() {
 
       <nav className="mobile-tabbar" aria-label="Quick navigation">
         {mobileMoreOpen ? (
-          <div id="mobile-more-menu" className="mobile-more-menu is-sports" aria-label="Sports navigation">
+          <div id="mobile-more-menu" className="mobile-more-menu is-sports" aria-label="More navigation">
+            <button
+              type="button"
+              className={schedulePageActive ? "mobile-more-action is-active" : "mobile-more-action"}
+              onClick={() => openStatusPage("upcoming")}
+              aria-current={schedulePageActive ? "page" : undefined}
+            >
+              <NextNavIcon size={20} aria-hidden="true" />
+              <span>Schedule</span>
+              <small>{slateStats.upcoming}</small>
+            </button>
             {sportFocusItems.map((sport) => {
               const sportActive = sportsPageActive && sportFilter === sport.key;
 
@@ -1117,10 +1250,20 @@ export default function App() {
           aria-expanded={mobileMoreOpen}
           aria-controls="mobile-more-menu"
           aria-current={mobileMoreActive ? "page" : undefined}
-          aria-label={activeSportSummary ? `Sports, ${activeSportSummary.label} selected` : "Sports"}
+          aria-label={
+            schedulePageActive
+              ? "More, Schedule selected"
+              : activeSportSummary
+                ? `More, ${activeSportSummary.label} selected`
+                : "More"
+          }
         >
-          <img src={activeSportSummary?.iconSrc ?? genericSportIconUrl} alt="" aria-hidden="true" />
-          <span>Sports</span>
+          {schedulePageActive ? (
+            <NextNavIcon size={18} aria-hidden="true" />
+          ) : (
+            <img src={activeSportSummary?.iconSrc ?? genericSportIconUrl} alt="" aria-hidden="true" />
+          )}
+          <span>More</span>
         </button>
       </nav>
 
@@ -3185,6 +3328,11 @@ function currentPathname() {
   return typeof window === "undefined" ? "/" : window.location.pathname;
 }
 
+function currentMatchIdFromUrl() {
+  if (typeof window === "undefined") return "";
+  return (new URLSearchParams(window.location.search).get("match") ?? "").trim().slice(0, 200);
+}
+
 function seoRouteFromPath(pathname: string): SeoRoute {
   const normalizedPath = pathname.toLowerCase().replace(/\/+$/, "") || "/";
   return (
@@ -3210,15 +3358,39 @@ function seoRouteFromState(
   return seoRoutes.home;
 }
 
-function writeBrowserRoute(route: SeoRoute, mode: "push" | "replace") {
+function writeBrowserRoute(route: SeoRoute, mode: "push" | "replace", matchId = "") {
   if (typeof window === "undefined") return;
-  if (mode === "push" && window.location.pathname === route.path) return;
+  const nextUrl = new URL(route.path, window.location.origin);
+  if (matchId) nextUrl.searchParams.set("match", matchId);
+  const relativeUrl = `${nextUrl.pathname}${nextUrl.search}`;
+  const currentUrl = `${window.location.pathname}${window.location.search}`;
+  if (mode === "push" && currentUrl === relativeUrl) return;
 
-  const state = { route: route.key };
+  const state = { route: route.key, matchId: matchId || undefined };
   if (mode === "replace") {
-    window.history.replaceState(state, "", route.path);
+    window.history.replaceState(state, "", relativeUrl);
   } else {
-    window.history.pushState(state, "", route.path);
+    window.history.pushState(state, "", relativeUrl);
+  }
+}
+
+function copyTextFallback(value: string) {
+  if (typeof document === "undefined") return false;
+
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    return document.execCommand("copy");
+  } catch {
+    return false;
+  } finally {
+    textarea.remove();
   }
 }
 
