@@ -94,6 +94,13 @@ type DbMatch = {
   position?: unknown;
 };
 
+type BackendSnapshot = {
+  servers?: unknown;
+  matches?: unknown;
+  supabase_servers?: unknown;
+  supabase_matches?: unknown;
+};
+
 const mediaParams = ["url", "src", "source", "stream", "file", "link", "u"];
 const directMediaPattern = /\.(m3u8|mpd|mp4|webm|m4v|mov)(\?|$)/i;
 const allowedStreamSports = new Set([
@@ -123,15 +130,16 @@ const supabaseAnonKey = import.meta.env.VITE_SPORTS_SUPABASE_ANON_KEY;
 
 export const defaultCatalogUrl =
   import.meta.env.VITE_SPORTS_CATALOG_URL || "/api/catalog";
+const defaultBackendSnapshotUrl =
+  import.meta.env.VITE_SPORTS_BACKEND_SNAPSHOT_URL || "/api/backend";
 
 export async function fetchCatalog(endpoint = defaultCatalogUrl, signal?: AbortSignal): Promise<Match[]> {
-  const [damiMatches, serverResult, dbMatchResult] = await Promise.all([
+  const [damiMatches, backendResult] = await Promise.all([
     fetchDamiCatalog(endpoint, signal),
-    fetchServerCatalog(signal).catch(() => []),
-    fetchDbMatches(signal).catch(() => []),
+    fetchBackendCatalog(signal),
   ]);
 
-  return mergeServerSources(damiMatches, serverResult, dbMatchResult);
+  return mergeServerSources(damiMatches, backendResult.servers, backendResult.matches);
 }
 
 async function fetchDamiCatalog(endpoint: string, signal?: AbortSignal): Promise<Match[]> {
@@ -148,7 +156,25 @@ async function fetchDamiCatalog(endpoint: string, signal?: AbortSignal): Promise
   return normalizeCatalog(payload);
 }
 
-async function fetchServerCatalog(signal?: AbortSignal): Promise<DbServer[]> {
+async function fetchBackendCatalog(signal?: AbortSignal): Promise<{ servers: DbServer[]; matches: DbMatch[] }> {
+  const fallback = () => fetchBackendSnapshot(signal).catch(() => ({ servers: [], matches: [] }));
+
+  if (!supabaseUrl || !supabaseAnonKey) return fallback();
+
+  try {
+    const [servers, matches] = await Promise.all([
+      fetchSupabaseServers(signal),
+      fetchSupabaseMatches(signal),
+    ]);
+    if (servers.length || matches.length) return { servers, matches };
+  } catch {
+    return fallback();
+  }
+
+  return fallback();
+}
+
+async function fetchSupabaseServers(signal?: AbortSignal): Promise<DbServer[]> {
   if (!supabaseUrl || !supabaseAnonKey) return [];
 
   const response = await fetch(
@@ -168,7 +194,7 @@ async function fetchServerCatalog(signal?: AbortSignal): Promise<DbServer[]> {
   return Array.isArray(payload) ? payload : [];
 }
 
-async function fetchDbMatches(signal?: AbortSignal): Promise<DbMatch[]> {
+async function fetchSupabaseMatches(signal?: AbortSignal): Promise<DbMatch[]> {
   if (!supabaseUrl || !supabaseAnonKey) return [];
 
   const response = await fetch(
@@ -186,6 +212,66 @@ async function fetchDbMatches(signal?: AbortSignal): Promise<DbMatch[]> {
   if (!response.ok) return [];
   const payload = (await response.json()) as DbMatch[];
   return Array.isArray(payload) ? payload : [];
+}
+
+async function fetchBackendSnapshot(signal?: AbortSignal): Promise<{ servers: DbServer[]; matches: DbMatch[] }> {
+  const response = await fetch(defaultBackendSnapshotUrl, {
+    headers: { Accept: "application/json" },
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Backend snapshot request failed with HTTP ${response.status}`);
+  }
+
+  const payload = (await response.json()) as BackendSnapshot;
+  return {
+    servers: normalizeSnapshotServers(payload.servers ?? payload.supabase_servers),
+    matches: normalizeSnapshotMatches(payload.matches ?? payload.supabase_matches),
+  };
+}
+
+function normalizeSnapshotServers(value: unknown): DbServer[] {
+  if (!Array.isArray(value)) return [];
+  const servers: DbServer[] = [];
+
+  for (const row of value) {
+    if (!row || typeof row !== "object") continue;
+    const server = row as Record<string, unknown>;
+    servers.push({
+      id: server.id,
+      sport: server.sport,
+      server_name: server.server_name ?? server.name,
+      server_url: server.server_url ?? server.url,
+      position: server.position,
+      match_id: server.match_id,
+    });
+  }
+
+  return servers;
+}
+
+function normalizeSnapshotMatches(value: unknown): DbMatch[] {
+  if (!Array.isArray(value)) return [];
+  const matches: DbMatch[] = [];
+
+  for (const row of value) {
+    if (!row || typeof row !== "object") continue;
+    const match = row as Record<string, unknown>;
+    matches.push({
+      id: match.id,
+      status: match.status,
+      sport: match.sport,
+      team_a: match.team_a,
+      team_b: match.team_b,
+      league: match.league,
+      match_time: match.match_time,
+      match_date: match.match_date,
+      position: match.position,
+    });
+  }
+
+  return matches;
 }
 
 export function normalizeCatalog(payload: DamiCatalog): Match[] {

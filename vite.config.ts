@@ -1,8 +1,14 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 const proxyControlParams = new Set(["clean", "forwardSearch", "upstreamOrigin", "url"]);
+const backendExportDirectory = path.resolve("data", "backend-export");
+let localBackendSnapshotPromise:
+  | Promise<{ exported_at: unknown; servers: unknown[]; matches: unknown[] }>
+  | undefined;
 const allowedApiOriginsByHost = new Map([
   [
     "footapi-psi.vercel.app",
@@ -88,6 +94,49 @@ export default defineConfig({
               response.statusCode = error instanceof Error && error.name === "TimeoutError" ? 504 : 502;
               response.setHeader("content-type", "application/json; charset=utf-8");
               response.end(JSON.stringify({ error: "Catalog upstream request failed" }));
+            }
+          },
+        );
+      },
+    },
+    {
+      name: "local-backend-api",
+      configureServer(server) {
+        server.middlewares.use(
+          "/api/backend",
+          async (request: IncomingMessage, response: ServerResponse) => {
+            response.setHeader("access-control-allow-origin", "*");
+            response.setHeader("access-control-allow-methods", "GET,HEAD,OPTIONS");
+            response.setHeader("access-control-allow-headers", "accept,content-type");
+
+            if (request.method === "OPTIONS") {
+              response.statusCode = 204;
+              response.end();
+              return;
+            }
+
+            if (request.method !== "GET" && request.method !== "HEAD") {
+              response.statusCode = 405;
+              response.setHeader("allow", "GET, HEAD, OPTIONS");
+              response.setHeader("content-type", "application/json; charset=utf-8");
+              response.end(JSON.stringify({ error: "Method not allowed" }));
+              return;
+            }
+
+            try {
+              const snapshot = await loadLocalBackendSnapshot();
+              response.statusCode = 200;
+              response.setHeader("content-type", "application/json; charset=utf-8");
+              response.setHeader("cache-control", "no-store");
+              if (request.method === "HEAD") {
+                response.end();
+                return;
+              }
+              response.end(JSON.stringify(snapshot));
+            } catch {
+              response.statusCode = 500;
+              response.setHeader("content-type", "application/json; charset=utf-8");
+              response.end(JSON.stringify({ error: "Backend snapshot is unavailable" }));
             }
           },
         );
@@ -278,4 +327,31 @@ function proxiedApiUrl(apiUrl: string, upstreamOrigin: string) {
     url: apiUrl,
   });
   return `/api/proxy?${params.toString()}`;
+}
+
+async function loadLocalBackendSnapshot() {
+  localBackendSnapshotPromise ??= Promise.all([
+    readJson(path.join(backendExportDirectory, "supabase-servers.json")),
+    readJson(path.join(backendExportDirectory, "supabase-matches.json")),
+    readJson(path.join(backendExportDirectory, "metadata.json")).catch(() => null),
+  ]).then(([servers, matches, metadata]) => {
+    if (!Array.isArray(servers) || !Array.isArray(matches)) {
+      throw new Error("Backend snapshot files must contain arrays");
+    }
+
+    return {
+      exported_at:
+        metadata && typeof metadata === "object" && "exported_at" in metadata
+          ? metadata.exported_at
+          : null,
+      servers,
+      matches,
+    };
+  });
+
+  return localBackendSnapshotPromise;
+}
+
+async function readJson(filename: string) {
+  return JSON.parse(await readFile(filename, "utf8")) as unknown;
 }
