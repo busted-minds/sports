@@ -1,5 +1,16 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+
 const defaultUpstreamUrl = "https://sportsx-26.vercel.app/api/dami";
 const catalogCacheControl = "public, s-maxage=30, stale-while-revalidate=300";
+const snapshotCacheControl = "public, s-maxage=300, stale-while-revalidate=3600";
+const snapshotFilename = path.join(
+  process.cwd(),
+  "data",
+  "backend-export",
+  "dami-catalog.json",
+);
+let snapshotPromise;
 
 export default async function handler(request, response) {
   setCors(response);
@@ -16,15 +27,8 @@ export default async function handler(request, response) {
     return;
   }
 
-  let upstreamUrl;
   try {
-    upstreamUrl = resolveUpstreamUrl();
-  } catch {
-    sendJson(response, 500, { error: "Catalog upstream is not configured correctly" });
-    return;
-  }
-
-  try {
+    const upstreamUrl = resolveUpstreamUrl();
     const upstream = await fetch(upstreamUrl, {
       headers: {
         Accept: "application/json",
@@ -34,31 +38,48 @@ export default async function handler(request, response) {
     });
 
     if (!upstream.ok) {
-      sendJson(response, 502, { error: `Catalog upstream returned HTTP ${upstream.status}` });
-      return;
+      throw new Error(`Catalog upstream returned HTTP ${upstream.status}`);
     }
 
     const payload = await upstream.json();
     if (!isCatalog(payload)) {
-      sendJson(response, 502, { error: "Catalog upstream returned an invalid payload" });
-      return;
+      throw new Error("Catalog upstream returned an invalid payload");
     }
 
-    response.statusCode = 200;
-    response.setHeader("content-type", "application/json; charset=utf-8");
-    response.setHeader("cache-control", catalogCacheControl);
-    if (request.method === "HEAD") {
-      response.end();
-      return;
+    sendCatalog(response, request.method, payload, "upstream", catalogCacheControl);
+  } catch {
+    try {
+      const snapshot = await loadSnapshot();
+      sendCatalog(response, request.method, snapshot, "snapshot", snapshotCacheControl);
+    } catch {
+      sendJson(response, 502, { error: "Catalog upstream and snapshot are unavailable" });
     }
-
-    response.end(JSON.stringify(payload));
-  } catch (error) {
-    const timedOut = error instanceof Error && error.name === "TimeoutError";
-    sendJson(response, timedOut ? 504 : 502, {
-      error: timedOut ? "Catalog upstream timed out" : "Catalog upstream request failed",
-    });
   }
+}
+
+async function loadSnapshot() {
+  snapshotPromise ??= readFile(snapshotFilename, "utf8")
+    .then(JSON.parse)
+    .then((payload) => {
+      if (!isCatalog(payload)) {
+        throw new Error("Catalog snapshot returned an invalid payload");
+      }
+      return payload;
+    });
+
+  return snapshotPromise;
+}
+
+function sendCatalog(response, method, payload, source, cacheControl) {
+  response.statusCode = 200;
+  response.setHeader("content-type", "application/json; charset=utf-8");
+  response.setHeader("cache-control", cacheControl);
+  response.setHeader("x-catalog-source", source);
+  if (method === "HEAD") {
+    response.end();
+    return;
+  }
+  response.end(JSON.stringify(payload));
 }
 
 function resolveUpstreamUrl() {

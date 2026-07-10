@@ -64,36 +64,48 @@ export default defineConfig({
                 signal: AbortSignal.timeout(10_000),
               });
               if (!upstream.ok) {
-                response.statusCode = 502;
-                response.setHeader("content-type", "application/json; charset=utf-8");
-                response.end(
-                  JSON.stringify({ error: `Catalog upstream returned HTTP ${upstream.status}` }),
-                );
-                return;
+                throw new Error(`Catalog upstream returned HTTP ${upstream.status}`);
               }
 
               const payload = (await upstream.json()) as { streams?: unknown };
               if (!payload || !Array.isArray(payload.streams)) {
-                response.statusCode = 502;
-                response.setHeader("content-type", "application/json; charset=utf-8");
-                response.end(
-                  JSON.stringify({ error: "Catalog upstream returned an invalid payload" }),
-                );
-                return;
+                throw new Error("Catalog upstream returned an invalid payload");
               }
 
               response.statusCode = 200;
               response.setHeader("content-type", "application/json; charset=utf-8");
               response.setHeader("cache-control", "no-store");
+              response.setHeader("x-catalog-source", "upstream");
               if (request.method === "HEAD") {
                 response.end();
                 return;
               }
               response.end(JSON.stringify(payload));
-            } catch (error) {
-              response.statusCode = error instanceof Error && error.name === "TimeoutError" ? 504 : 502;
-              response.setHeader("content-type", "application/json; charset=utf-8");
-              response.end(JSON.stringify({ error: "Catalog upstream request failed" }));
+            } catch {
+              try {
+                const payload = JSON.parse(
+                  await readFile(path.join(backendExportDirectory, "dami-catalog.json"), "utf8"),
+                ) as { streams?: unknown };
+                if (!payload || !Array.isArray(payload.streams)) {
+                  throw new Error("Catalog snapshot returned an invalid payload");
+                }
+
+                response.statusCode = 200;
+                response.setHeader("content-type", "application/json; charset=utf-8");
+                response.setHeader("cache-control", "no-store");
+                response.setHeader("x-catalog-source", "snapshot");
+                if (request.method === "HEAD") {
+                  response.end();
+                  return;
+                }
+                response.end(JSON.stringify(payload));
+              } catch {
+                response.statusCode = 502;
+                response.setHeader("content-type", "application/json; charset=utf-8");
+                response.end(
+                  JSON.stringify({ error: "Catalog upstream and snapshot are unavailable" }),
+                );
+              }
             }
           },
         );
