@@ -881,7 +881,7 @@ function statusWeight(status: SportScoreStatus) {
   return 3;
 }
 
-function teamNamesMatch(left: string, right: string) {
+export function teamNamesMatch(left: string, right: string) {
   const normalizedLeft = normalizeName(left);
   const normalizedRight = normalizeName(right);
   if (!normalizedLeft || !normalizedRight) return false;

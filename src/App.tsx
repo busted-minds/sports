@@ -28,6 +28,7 @@ import {
   scoreMatchPriority,
   sportScoreLine,
   sportScoreSports,
+  teamNamesMatch,
   type LeaderStat,
   type SportScoreIncident,
   type SportScoreLeader,
@@ -361,7 +362,7 @@ export default function App() {
     return pageGames.filter((match) => matchMatchesSearch(match, normalizedSearch));
   }, [normalizedSearch, pageGames]);
   const liveGames = useMemo(
-    () => games.filter(isStreamSelectable).slice(0, 6),
+    () => games.filter(isStreamSelectable),
     [games],
   );
   const upcomingGames = useMemo(
@@ -1617,6 +1618,8 @@ function HomePage({
   const heroAccent = heroMatch ? sportAccent(heroMatch.sportKey) : "generic";
   const heroSportIcon = heroMatch ? sportIconForKey(heroMatch.sportKey) : "";
   const heroFeatureLabel = "Featured live match";
+  const tickerMatches = liveGames.slice(0, 10);
+  const tickerDuration = `${Math.max(24, tickerMatches.length * 7)}s`;
 
   return (
     <section className="home-page" aria-label="Home">
@@ -1695,6 +1698,56 @@ function HomePage({
             </span>
           </button>
         ) : null}
+        <section className="home-live-ticker" aria-label="Live match ticker">
+          <button
+            type="button"
+            className="home-live-ticker-label"
+            onClick={() => onOpenStatus("live")}
+            aria-label={`Open all ${slateStats.live} live matches`}
+          >
+            <span className="home-live-ticker-pulse" aria-hidden="true" />
+            <span>Live</span>
+            <strong>{slateStats.live}</strong>
+          </button>
+          <div className="home-live-ticker-viewport">
+            {tickerMatches.length ? (
+              <div
+                className={`home-live-ticker-track${tickerMatches.length > 1 ? " is-animated" : " is-static"}`}
+                style={{ "--ticker-duration": tickerDuration } as CSSProperties}
+              >
+                <div className="home-live-ticker-group">
+                  {tickerMatches.map((match) => (
+                    <HomeLiveTickerItem
+                      key={match.id}
+                      match={match}
+                      score={findSportScoreForMatch(match, scoreMatches)}
+                      onSelect={() => onSelectMatch(match)}
+                    />
+                  ))}
+                </div>
+                {tickerMatches.length > 1 ? (
+                  <div className="home-live-ticker-group" aria-hidden="true">
+                    {tickerMatches.map((match) => (
+                      <HomeLiveTickerItem
+                        key={`repeat-${match.id}`}
+                        match={match}
+                        score={findSportScoreForMatch(match, scoreMatches)}
+                        onSelect={() => onSelectMatch(match)}
+                        duplicate
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <button type="button" className="home-live-ticker-empty" onClick={() => onOpenStatus("upcoming")}>
+                <span>No matches are live right now</span>
+                <strong>View upcoming</strong>
+                <ChevronRight size={14} aria-hidden="true" />
+              </button>
+            )}
+          </div>
+        </section>
       </section>
 
       <section className="home-summary-strip" aria-label="Slate summary">
@@ -1795,6 +1848,65 @@ function HomePage({
         </div>
       </section>
     </section>
+  );
+}
+
+function HomeLiveTickerItem({
+  match,
+  score,
+  onSelect,
+  duplicate = false,
+}: {
+  match: Match;
+  score: SportScoreMatch | null;
+  onSelect: () => void;
+  duplicate?: boolean;
+}) {
+  const liveScore = score?.status === "live" ? score : null;
+  const presentation = matchPresentation(match, score);
+  const scoreLine = liveScore ? sportScoreLine(liveScore) : "";
+  const hasScore = Boolean(scoreLine && scoreLine !== "vs");
+  const stateLabel = hasScore ? scoreLine : match.timeLabel || "Live";
+  const contextLabel = hasScore ? liveScore?.statusText : presentation.competition;
+
+  return (
+    <button
+      type="button"
+      className="home-live-ticker-item"
+      onClick={onSelect}
+      tabIndex={duplicate ? -1 : undefined}
+      aria-label={duplicate ? undefined : `Open ${matchTitle(match)}, ${hasScore ? `score ${scoreLine}` : stateLabel}`}
+    >
+      <span className="home-live-ticker-matchup">
+        <span className="home-live-ticker-team">
+          <TeamMark
+            badge={presentation.homeBadge}
+            name={match.homeTeam}
+            accent={sportAccent(match.sportKey)}
+            size="small"
+            showInitials={false}
+          />
+          <span>{match.homeTeam}</span>
+        </span>
+        {match.awayTeam ? (
+          <>
+            <span className="home-live-ticker-vs">vs</span>
+            <span className="home-live-ticker-team is-away">
+              <TeamMark
+                badge={presentation.awayBadge}
+                name={match.awayTeam}
+                accent={sportAccent(match.sportKey)}
+                size="small"
+                showInitials={false}
+              />
+              <span>{match.awayTeam}</span>
+            </span>
+          </>
+        ) : null}
+      </span>
+      <strong className={hasScore ? "has-score" : "is-time"}>{stateLabel}</strong>
+      <small>{contextLabel}</small>
+    </button>
   );
 }
 
@@ -3021,22 +3133,37 @@ function TeamMark({
   sportIcon,
   accent,
   size = "regular",
+  showInitials = true,
 }: {
   badge?: string;
   name: string;
   sportIcon?: string;
   accent: string;
   size?: "small" | "regular" | "large";
+  showInitials?: boolean;
 }) {
-  const imageSrc = badge || sportIcon || "";
+  const imageSources = [badge, sportIcon].filter(
+    (source, index, sources): source is string => Boolean(source) && sources.indexOf(source) === index,
+  );
+  const [failedImageSources, setFailedImageSources] = useState<string[]>([]);
+  const imageSrc = imageSources.find((source) => !failedImageSources.includes(source)) || "";
+
+  if (!imageSrc && !showInitials) return null;
 
   return (
     <span className={`team-mark is-${accent} is-${size}`}>
       {imageSrc ? (
-        <img src={imageSrc} alt="" loading="lazy" decoding="async" draggable="false" />
-      ) : (
+        <img
+          src={imageSrc}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          draggable="false"
+          onError={() => setFailedImageSources((sources) => [...sources, imageSrc])}
+        />
+      ) : showInitials ? (
         <span>{initials(name || "BM")}</span>
-      )}
+      ) : null}
     </span>
   );
 }
@@ -3628,6 +3755,18 @@ function formatSportKey(value: string) {
 
 function matchTitle(match: Match) {
   return match.awayTeam ? `${match.homeTeam} vs ${match.awayTeam}` : match.homeTeam;
+}
+
+function matchPresentation(match: Match, score: SportScoreMatch | null | undefined) {
+  const sameDirection = score ? teamNamesMatch(match.homeTeam, score.homeTeam) : true;
+  const scoreHomeBadge = score ? (sameDirection ? score.homeLogo : score.awayLogo) : "";
+  const scoreAwayBadge = score ? (sameDirection ? score.awayLogo : score.homeLogo) : "";
+
+  return {
+    homeBadge: match.homeBadge || scoreHomeBadge,
+    awayBadge: match.awayBadge || scoreAwayBadge,
+    competition: score?.competition || match.league,
+  };
 }
 
 function isStreamSelectable(match: Match) {
