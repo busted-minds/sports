@@ -1618,8 +1618,69 @@ function HomePage({
   const heroAccent = heroMatch ? sportAccent(heroMatch.sportKey) : "generic";
   const heroSportIcon = heroMatch ? sportIconForKey(heroMatch.sportKey) : "";
   const heroFeatureLabel = "Featured live match";
-  const tickerMatches = liveGames.slice(0, 10);
+  const showLiveTicker = liveGames.length > 0;
+  const tickerMatches = (showLiveTicker ? liveGames : upcomingGames).slice(0, 10);
+  const tickerStatus: NavigableStatus = showLiveTicker ? "live" : "upcoming";
+  const tickerCount = showLiveTicker ? slateStats.live : slateStats.upcoming;
   const tickerDuration = `${Math.max(24, tickerMatches.length * 7)}s`;
+  const tickerViewportRef = useRef<HTMLDivElement>(null);
+  const mobileTickerPausedRef = useRef(false);
+  const mobileTickerResumeTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const viewport = tickerViewportRef.current;
+    if (!viewport || tickerMatches.length < 2 || typeof window === "undefined") return;
+
+    const advanceTicker = () => {
+      if (
+        mobileTickerPausedRef.current ||
+        !window.matchMedia("(max-width: 820px)").matches ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        return;
+      }
+
+      const items = Array.from(
+        viewport.querySelectorAll<HTMLElement>(".home-live-ticker-group:not([aria-hidden]) .home-live-ticker-item"),
+      );
+      if (items.length < 2) return;
+
+      const currentIndex = items.reduce((closestIndex, item, index) => {
+        const closestDistance = Math.abs(items[closestIndex].offsetLeft - viewport.scrollLeft);
+        const itemDistance = Math.abs(item.offsetLeft - viewport.scrollLeft);
+        return itemDistance < closestDistance ? index : closestIndex;
+      }, 0);
+      const nextItem = items[(currentIndex + 1) % items.length];
+      viewport.scrollTo({ left: nextItem.offsetLeft, behavior: "smooth" });
+    };
+
+    const intervalId = window.setInterval(advanceTicker, 5_000);
+    return () => {
+      window.clearInterval(intervalId);
+      if (mobileTickerResumeTimerRef.current !== null) {
+        window.clearTimeout(mobileTickerResumeTimerRef.current);
+        mobileTickerResumeTimerRef.current = null;
+      }
+    };
+  }, [tickerMatches.length]);
+
+  const pauseMobileTicker = () => {
+    mobileTickerPausedRef.current = true;
+    if (mobileTickerResumeTimerRef.current !== null) {
+      window.clearTimeout(mobileTickerResumeTimerRef.current);
+      mobileTickerResumeTimerRef.current = null;
+    }
+  };
+
+  const resumeMobileTickerLater = () => {
+    if (mobileTickerResumeTimerRef.current !== null) {
+      window.clearTimeout(mobileTickerResumeTimerRef.current);
+    }
+    mobileTickerResumeTimerRef.current = window.setTimeout(() => {
+      mobileTickerPausedRef.current = false;
+      mobileTickerResumeTimerRef.current = null;
+    }, 5_000);
+  };
 
   return (
     <section className="home-page" aria-label="Home">
@@ -1698,18 +1759,37 @@ function HomePage({
             </span>
           </button>
         ) : null}
-        <section className="home-live-ticker" aria-label="Live match ticker">
+        <section
+          className={`home-live-ticker is-${tickerStatus}`}
+          aria-label={showLiveTicker ? "Live match ticker" : "Upcoming match ticker"}
+        >
           <button
             type="button"
             className="home-live-ticker-label"
-            onClick={() => onOpenStatus("live")}
-            aria-label={`Open all ${slateStats.live} live matches`}
+            onClick={() => onOpenStatus(tickerStatus)}
+            aria-label={`Open all ${tickerCount} ${showLiveTicker ? "live" : "upcoming"} matches`}
           >
-            <span className="home-live-ticker-pulse" aria-hidden="true" />
-            <span>Live</span>
-            <strong>{slateStats.live}</strong>
+            {showLiveTicker ? (
+              <span className="home-live-ticker-pulse" aria-hidden="true" />
+            ) : (
+              <Clock3 className="home-live-ticker-clock" size={14} aria-hidden="true" />
+            )}
+            <span>{showLiveTicker ? "Live" : "Up next"}</span>
+            <strong>{tickerCount}</strong>
           </button>
-          <div className="home-live-ticker-viewport">
+          <div
+            ref={tickerViewportRef}
+            className="home-live-ticker-viewport"
+            onPointerDown={pauseMobileTicker}
+            onPointerUp={resumeMobileTickerLater}
+            onPointerCancel={resumeMobileTickerLater}
+            onFocus={pauseMobileTicker}
+            onBlur={resumeMobileTickerLater}
+            onWheel={() => {
+              pauseMobileTicker();
+              resumeMobileTickerLater();
+            }}
+          >
             {tickerMatches.length ? (
               <div
                 className={`home-live-ticker-track${tickerMatches.length > 1 ? " is-animated" : " is-static"}`}
@@ -1721,7 +1801,7 @@ function HomePage({
                       key={match.id}
                       match={match}
                       score={findSportScoreForMatch(match, scoreMatches)}
-                      onSelect={() => onSelectMatch(match)}
+                      onSelect={() => showLiveTicker ? onSelectMatch(match) : onOpenStatus("upcoming")}
                     />
                   ))}
                 </div>
@@ -1732,7 +1812,7 @@ function HomePage({
                         key={`repeat-${match.id}`}
                         match={match}
                         score={findSportScoreForMatch(match, scoreMatches)}
-                        onSelect={() => onSelectMatch(match)}
+                        onSelect={() => showLiveTicker ? onSelectMatch(match) : onOpenStatus("upcoming")}
                         duplicate
                       />
                     ))}
@@ -1741,8 +1821,8 @@ function HomePage({
               </div>
             ) : (
               <button type="button" className="home-live-ticker-empty" onClick={() => onOpenStatus("upcoming")}>
-                <span>No matches are live right now</span>
-                <strong>View upcoming</strong>
+                <span>No scheduled matches available</span>
+                <strong>View schedule</strong>
                 <ChevronRight size={14} aria-hidden="true" />
               </button>
             )}
@@ -1875,7 +1955,13 @@ function HomeLiveTickerItem({
       className="home-live-ticker-item"
       onClick={onSelect}
       tabIndex={duplicate ? -1 : undefined}
-      aria-label={duplicate ? undefined : `Open ${matchTitle(match)}, ${hasScore ? `score ${scoreLine}` : stateLabel}`}
+      aria-label={
+        duplicate
+          ? undefined
+          : match.status === "upcoming"
+            ? `View ${matchTitle(match)} schedule, starts ${stateLabel}`
+            : `Open ${matchTitle(match)}, ${hasScore ? `score ${scoreLine}` : stateLabel}`
+      }
     >
       <span className="home-live-ticker-matchup">
         <span className="home-live-ticker-team">

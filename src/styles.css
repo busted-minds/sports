@@ -13195,6 +13195,35 @@ a:focus-visible {
   animation: home-live-ticker-pulse 1.8s ease-in-out infinite;
 }
 
+.home-live-ticker-clock {
+  flex: 0 0 auto;
+  color: #8edff3;
+}
+
+.home-live-ticker.is-upcoming .home-live-ticker-label {
+  min-width: 118px;
+  color: #e8f8fc;
+  background:
+    linear-gradient(90deg, rgba(66, 214, 255, 0.2), rgba(66, 214, 255, 0.065)),
+    rgba(18, 21, 24, 0.98);
+}
+
+.home-live-ticker.is-upcoming .home-live-ticker-label:hover,
+.home-live-ticker.is-upcoming .home-live-ticker-label:focus-visible {
+  background:
+    linear-gradient(90deg, rgba(66, 214, 255, 0.28), rgba(66, 214, 255, 0.1)),
+    rgba(24, 27, 30, 0.98);
+}
+
+.home-live-ticker.is-upcoming .home-live-ticker-label strong {
+  color: #eafbff;
+  background: rgba(66, 214, 255, 0.2);
+}
+
+.home-live-ticker.is-upcoming .home-live-ticker-item {
+  border-color: rgba(142, 223, 243, 0.18);
+}
+
 .home-live-ticker-viewport {
   min-width: 0;
   overflow: hidden;
@@ -13222,8 +13251,9 @@ a:focus-visible {
 .home-live-ticker-group {
   display: flex;
   flex: 0 0 auto;
-  align-items: stretch;
-  padding-right: 28px;
+  align-items: center;
+  gap: 8px;
+  padding-right: 8px;
 }
 
 .home-live-ticker-track.is-static .home-live-ticker-group {
@@ -13236,29 +13266,34 @@ a:focus-visible {
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 100%;
-  padding: 0 17px;
-  border: 0;
+  height: 34px;
+  margin-block: 5px;
+  padding: 0 12px;
+  border: 1px solid rgba(225, 232, 237, 0.14);
+  border-radius: 999px;
   color: #dce3e8;
-  background: transparent;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)),
+    rgba(18, 21, 24, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   font-size: 0.72rem;
   white-space: nowrap;
 }
 
 .home-live-ticker-item::after {
-  content: "";
-  position: absolute;
-  top: 13px;
-  right: 0;
-  bottom: 13px;
-  width: 1px;
-  background: rgba(225, 232, 237, 0.13);
+  content: none;
 }
 
 .home-live-ticker-item:hover,
 .home-live-ticker-item:focus-visible {
   color: #fff;
-  background: rgba(255, 255, 255, 0.065);
+  border-color: rgba(255, 132, 104, 0.38);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.04)),
+    rgba(24, 27, 30, 0.96);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 2px rgba(232, 95, 61, 0.08);
 }
 
 .home-live-ticker-matchup,
@@ -13400,7 +13435,7 @@ a:focus-visible {
   .home-live-ticker-viewport {
     overflow-x: auto;
     overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
     scrollbar-width: none;
     -webkit-mask-image: none;
     mask-image: none;
@@ -13420,14 +13455,34 @@ a:focus-visible {
   }
 
   .home-live-ticker-group {
-    padding-right: 0;
+    gap: 7px;
+    padding: 0 7px 0 0;
   }
 
   .home-live-ticker-item {
+    flex: 0 0 auto;
+    width: max-content;
+    max-width: calc(100vw - 102px);
+    height: 34px;
+    margin-block: 5px;
     gap: 7px;
-    min-width: min(88vw, 350px);
-    padding-inline: 13px;
+    min-width: 0;
+    padding-inline: 10px;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .home-live-ticker.is-upcoming .home-live-ticker-item {
+    max-width: calc(100vw - 138px);
+  }
+
+  .home-live-ticker-matchup {
+    flex: 0 1 auto;
+    overflow: hidden;
+  }
+
+  .home-live-ticker-team {
+    flex: 1 1 0;
   }
 
   .home-live-ticker-team .team-mark.is-small {
