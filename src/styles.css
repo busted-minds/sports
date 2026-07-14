@@ -13429,25 +13429,13 @@ a:focus-visible {
   }
 
   .home-live-ticker-viewport {
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
+    overflow: hidden;
     -webkit-mask-image: none;
     mask-image: none;
   }
 
-  .home-live-ticker-viewport::-webkit-scrollbar {
-    display: none;
-  }
-
   .home-live-ticker-track.is-animated {
     min-width: max-content;
-    animation: none;
-  }
-
-  .home-live-ticker-track .home-live-ticker-group[aria-hidden="true"] {
-    display: none;
   }
 
   .home-live-ticker-group {
@@ -13464,8 +13452,6 @@ a:focus-visible {
     gap: 7px;
     min-width: 0;
     padding-inline: 10px;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
   }
 
   .home-live-ticker.is-upcoming .home-live-ticker-item {

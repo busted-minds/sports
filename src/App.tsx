@@ -1623,64 +1623,6 @@ function HomePage({
   const tickerStatus: NavigableStatus = showLiveTicker ? "live" : "upcoming";
   const tickerCount = showLiveTicker ? slateStats.live : slateStats.upcoming;
   const tickerDuration = `${Math.max(24, tickerMatches.length * 7)}s`;
-  const tickerViewportRef = useRef<HTMLDivElement>(null);
-  const mobileTickerPausedRef = useRef(false);
-  const mobileTickerResumeTimerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const viewport = tickerViewportRef.current;
-    if (!viewport || tickerMatches.length < 2 || typeof window === "undefined") return;
-
-    const advanceTicker = () => {
-      if (
-        mobileTickerPausedRef.current ||
-        !window.matchMedia("(max-width: 820px)").matches ||
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ) {
-        return;
-      }
-
-      const items = Array.from(
-        viewport.querySelectorAll<HTMLElement>(".home-live-ticker-group:not([aria-hidden]) .home-live-ticker-item"),
-      );
-      if (items.length < 2) return;
-
-      const currentIndex = items.reduce((closestIndex, item, index) => {
-        const closestDistance = Math.abs(items[closestIndex].offsetLeft - viewport.scrollLeft);
-        const itemDistance = Math.abs(item.offsetLeft - viewport.scrollLeft);
-        return itemDistance < closestDistance ? index : closestIndex;
-      }, 0);
-      const nextItem = items[(currentIndex + 1) % items.length];
-      viewport.scrollTo({ left: nextItem.offsetLeft, behavior: "smooth" });
-    };
-
-    const intervalId = window.setInterval(advanceTicker, 5_000);
-    return () => {
-      window.clearInterval(intervalId);
-      if (mobileTickerResumeTimerRef.current !== null) {
-        window.clearTimeout(mobileTickerResumeTimerRef.current);
-        mobileTickerResumeTimerRef.current = null;
-      }
-    };
-  }, [tickerMatches.length]);
-
-  const pauseMobileTicker = () => {
-    mobileTickerPausedRef.current = true;
-    if (mobileTickerResumeTimerRef.current !== null) {
-      window.clearTimeout(mobileTickerResumeTimerRef.current);
-      mobileTickerResumeTimerRef.current = null;
-    }
-  };
-
-  const resumeMobileTickerLater = () => {
-    if (mobileTickerResumeTimerRef.current !== null) {
-      window.clearTimeout(mobileTickerResumeTimerRef.current);
-    }
-    mobileTickerResumeTimerRef.current = window.setTimeout(() => {
-      mobileTickerPausedRef.current = false;
-      mobileTickerResumeTimerRef.current = null;
-    }, 5_000);
-  };
 
   return (
     <section className="home-page" aria-label="Home">
@@ -1777,19 +1719,7 @@ function HomePage({
             <span>{showLiveTicker ? "Live" : "Up next"}</span>
             <strong>{tickerCount}</strong>
           </button>
-          <div
-            ref={tickerViewportRef}
-            className="home-live-ticker-viewport"
-            onPointerDown={pauseMobileTicker}
-            onPointerUp={resumeMobileTickerLater}
-            onPointerCancel={resumeMobileTickerLater}
-            onFocus={pauseMobileTicker}
-            onBlur={resumeMobileTickerLater}
-            onWheel={() => {
-              pauseMobileTicker();
-              resumeMobileTickerLater();
-            }}
-          >
+          <div className="home-live-ticker-viewport">
             {tickerMatches.length ? (
               <div
                 className={`home-live-ticker-track${tickerMatches.length > 1 ? " is-animated" : " is-static"}`}
